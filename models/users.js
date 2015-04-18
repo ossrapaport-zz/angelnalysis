@@ -4,8 +4,7 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: {msg: "You must enter a name"},
-        isAlpha: {msg: "The name can only consist of letters"}
+        notEmpty: {msg: "You must enter a name"}
       }
     },
     angellist_id: {
@@ -15,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     image: {
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT,
       validate: {
         isUrl: {msg: "The image must be a URL link"}
       }
