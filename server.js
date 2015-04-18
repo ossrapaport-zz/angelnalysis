@@ -1,3 +1,4 @@
+//My AngelList id is 1159294
 var application_root = __dirname,
     express = require('express'),
     passport = require('passport'),
@@ -9,13 +10,30 @@ var application_root = __dirname,
     logger = require("morgan"),
     session = require("express-session"),
     path = require("path"),
+    environment = require("dotenv"),
     AngelListStrategy = require('passport-angellist').Strategy;
 
-var angelListClientID = "5b2e8928e19502edc3a05147d2a43c88ec57de4506c08b12";
-var angelListClientSecret = "38c5cdc20a10af63cffc39e15c65dcf99340107a02b8730f";
-var returnedAccessToken;
+environment.load();
+var options = {
+  url: "loremipsum",
+  headers: {
+    Authorization: "vitamquae"
+  }
+};
 
 var app = express();
+
+app.use(logger("dev"));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(methodOverride());
+app.use(session({
+  secret: "graeme",
+  saveUninitialized: false,
+  resave: false
+}));
+
 
 passport.serializeUser(function(user, done) {
   done(null, user);
@@ -26,41 +44,24 @@ passport.deserializeUser(function(obj, done) {
 });
 
 passport.use(new AngelListStrategy({
-  clientID: angelListClientID,
-  clientSecret: angelListClientSecret,
+  clientID: process.env.ANGEL_LIST_CLIENT_ID,
+  clientSecret: process.env.ANGEL_LIST_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/logged_in"
 }, function(accessToken, refreshToken, profile, done) {
-  returnedAccessToken = accessToken;
+  options.headers.Authorization = accessToken;
   process.nextTick(function() {
     return done(null, profile);
   });
-}));
-
-app.use(logger("dev"));
-app.use(cookieParser());
-app.use(bodyParser());
-app.use(methodOverride());
-app.use(session({
-  secret: "graeme",
-  saveUninitialized: false,
-  resave: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
 
+
 function ensureAuthenticated(req, res, next) { //Middleware for later
   if (req.isAuthenticated()) { return next(); }
   res.redirect('/login');
-}
-
-app.get("/login", function(req, res) {
-  res.send("<a href=\"/auth/angellist\">Log in with angeleijflse</a>");
-});
-
-app.get("/toobad", function(req, res) {
-  res.send("TOOBAD");
-});
+};
 
 app.get('/auth/angellist',
   passport.authenticate('angellist'),
@@ -70,13 +71,21 @@ app.get('/auth/angellist',
 app.get('/logged_in', 
   passport.authenticate('angellist', { failureRedirect: '/login' }),
   function(req, res) {
-    console.log("Code:", req.query.code);
-    console.log("Access:", returnedAccessToken);
-    request.get("https://api.angel.co/1/users/1159294/followers?access_token=" + returnedAccessToken,
-    function(error, response, body) {
-        console.log("Body:", body);
-      res.send(body);
-    });
+    console.log("HERE:", req.user._json);
+    console.log(options);
+    res.send("Logged in");
+});
+
+//TODO: passport.authenticate always redirects to login, write
+//your own middleware
+app.get("/path_test", function(req, res) {
+  options.url = "https://api.angel.co/1/paths?user_ids=155",
+  request(options, function(error, response, body) {
+    console.log("Error:", error);
+    console.log("response:", response);
+    console.log("Body:", body);
+    res.send(body);
+  });
 });
 
 app.get("/logout", function(req, res) {
