@@ -32,12 +32,14 @@ app.use(session({
 var User = models.users;
 var Desired = models.desireds;
 
+var currentAccessToken;
+
 passport.use(new AngelListStrategy({
   clientID: process.env.ANGEL_LIST_CLIENT_ID,
   clientSecret: process.env.ANGEL_LIST_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/logged_in"
 }, function(accessToken, refreshToken, profile, done) {
-  options.headers.Authorization = accessToken;
+  currentAccessToken = accessToken;
   process.nextTick(function() {
     return done(null, profile);
   });
@@ -54,18 +56,6 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
-var options = {
-  url: "loremipsum",
-  headers: {
-    Authorization: "vitamquae"
-  }
-};
-
-function ensureAuthenticated(req, res, next) { //Middleware for later
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login');
-};
-
 app.get('/auth/angellist',
   passport.authenticate('angellist'),
   function(req, res) {}
@@ -74,14 +64,12 @@ app.get('/auth/angellist',
 app.get('/logged_in', 
   passport.authenticate('angellist', { failureRedirect: '/login' }),
   function(req, res) {
+    req.session.token = currentAccessToken;
     var userName = req.user._json.name;
     var angellistID = req.user._json.id;
     var userEmail = req.user._json.email;
     var imageURL = req.user._json.image;
-    console.log(userName);
-/*    console.log(angellistID);
-    console.log(userEmail);
-    console.log(imageURL);*/
+
     User.findOrCreate({
       where: {
         angellist_id: angellistID 
@@ -92,21 +80,100 @@ app.get('/logged_in',
         image: imageURL
       }
     })
-    .then(function(user, created) {
-      console.log("User:", user);
-      console.log("Created:", created);
-      res.send("Logged in");
+    .then(function(user) {
+      req.session.currentUser = user[0].id; 
+      res.send(user[0]);
     });
 });
 
-//TODO: passport.authenticate always redirects to login, write
-//your own middleware
-app.get("/path_test", function(req, res) {
-  options.url = "https://api.angel.co/1/paths?user_ids=155",
+var authenticate = function(req, res, next) {
+  req.session.token && req.session.currentUser ? next() : res.status(400).send({
+    err: 400,
+    msg: "You have to login first"
+  });
+};
+
+var authorize = function(req, res, next) {
+  var sessionID = parseInt( req.session.currentUser );
+  var reqID = parseInt( req.params.user_id );
+
+  sessionID === reqID ? next() : res.status(400).send({
+    err: 400,
+    msg: "You are not allowed to see that"
+  });
+};
+
+//User Routes
+
+app.get("/users/:user_id", authenticate, authorize, function(req, res) {
+
+  User
+  .findOne(req.params.id,{
+    include: Desired
+  })
+  .then(function(user) {
+    res.send(user);
+  });
+
+});
+
+//When would this route be used?
+app.put("/users/:user_id", authenticate, authorize, function(req, res) {
+
+  User
+  .findOne(req.params.id)
+  .then(function(user) {
+    user
+    .update(req.body)
+    .then(function(updatedUser) {
+      res.send(updatedUser);
+    });
+  });
+});
+
+app.delete("/users/:user_id", authenticate, authorize, function(req, res) {
+
+  User
+  .findOne(req.params.id)
+  .then(function(user) {
+    user
+    .destroy()
+    .then(function() {
+      res.send(user);
+    });
+  });
+});
+
+//Desired Routes
+
+app.get("/users/:user_id/desireds", function(req, res) {
+
+  Desired
+  .findAll({
+    where: {
+      user_id: req.params.id
+    } 
+  })
+  .then(function(desireds) {
+    res.send(desireds);
+  });
+});
+
+app.post("/users/:user_id/desireds/:desiredid", function(req, res) {
+
+
+})
+
+//TEST Route
+app.get("/path_test/:id", authenticate, authorize, function(req, res) {
+  var options = {
+    url: "https://api.angel.co/1/paths?user_ids=155",
+    headers: {
+      Authorization: req.session.token
+    }
+  };
+
   request(options, function(error, response, body) {
-    console.log("Error:", error);
-    console.log("response:", response);
-    console.log("Body:", body);
     res.send(body);
   });
 });
@@ -115,6 +182,7 @@ app.get("/logout", function(req, res) {
   req.logout();
   res.redirect("/");
 });
+
 
 app.listen(3000, function() {
   console.log("Server on 3000");
