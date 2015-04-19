@@ -27,9 +27,8 @@ module.exports = function(sequelize, DataTypes) {
 
     classMethods: {
       associate: function(models) {
-        desireds.belongsToMany(models.users, {
-          through: "desireds_users",
-          foreignKey: "desired_id"
+        desireds.belongsTo(models.users, {
+          foreignKey: "user_id"
         });
       }
     }
