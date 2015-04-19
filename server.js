@@ -86,6 +86,12 @@ app.get('/logged_in',
     });
 });
 
+
+app.get("/logout", function(req, res) {
+  req.logout();
+  res.redirect("/");
+});
+
 var authenticate = function(req, res, next) {
   req.session.token && req.session.currentUser ? next() : res.status(400).send({
     err: 400,
@@ -159,15 +165,49 @@ app.get("/users/:user_id/desireds", function(req, res) {
   });
 });
 
-app.post("/users/:user_id/desireds/:desiredid", function(req, res) {
+//Test Call
+app.get("/search", function(req, res) {
+
+  var options = {
+    url: "https://api.angel.co/1/search?query=health+care&LocationTag=new+york&type=Startup",
+    headers: {}
+  };
+
+  request(options, function(error, response, body) {
+    res.send(body);
+  });
+});
+
+app.post("/users/:user_id/desireds", authenticate, authorize, function(req, res) {
+
+  //TODO: Find the desired person an AngelList and store their
+  //AngelList id. This will entail parsing the entered description 
+  //and finding the right person or position.
+
+  var options = {
+    url: "https://api.angel.co/1/search?type=User"
+  }
 
 
+
+  Desired
+  .create({
+    user_id: req.body.user_id,
+    description: req.body.description,
+    type: req.body.type,
+    angellist_id: "loremipsum"
+  })
 })
 
-//TEST Route
-app.get("/path_test/:id", authenticate, authorize, function(req, res) {
+//Just the path option
+app.get("/path_test/:user_id/:type/:angel_id_of_desired", authenticate, authorize, function(req, res) {
+  
+  var angelIDOfDesired = parseInt( req.params.angel_id_of_desired );
+  var queryLeft = (req.params.type === "user" ? "user_ids" : "startup_ids"); 
+  var queryString = queryLeft + angelIDOfDesired;
+
   var options = {
-    url: "https://api.angel.co/1/paths?user_ids=155",
+    url: "https://api.angel.co/1/paths?" + queryString,
     headers: {
       Authorization: req.session.token
     }
@@ -177,12 +217,6 @@ app.get("/path_test/:id", authenticate, authorize, function(req, res) {
     res.send(body);
   });
 });
-
-app.get("/logout", function(req, res) {
-  req.logout();
-  res.redirect("/");
-});
-
 
 app.listen(3000, function() {
   console.log("Server on 3000");
