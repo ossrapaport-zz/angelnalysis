@@ -1,4 +1,5 @@
 //My AngelList id is 1159294
+//For AngelList pagination, just put in a query param of page="pagenumber"
 var application_root  = __dirname,
     express           = require('express'),
     passport          = require('passport'),
@@ -12,6 +13,7 @@ var application_root  = __dirname,
     models            = require("./models"),
     path              = require("path"),
     environment       = require("dotenv"),
+    //Note that you added options._scope in below.
     AngelListStrategy = require('passport-angellist').Strategy;
 
 
@@ -67,6 +69,7 @@ app.get('/logged_in',
     req.session.token = currentAccessToken;
     var userName = req.user._json.name;
     var angellistID = req.user._json.id;
+    req.session.angelID = angellistID;
     var userEmail = req.user._json.email;
     var imageURL = req.user._json.image;
 
@@ -88,6 +91,7 @@ app.get('/logged_in',
 
 
 app.get("/logout", function(req, res) {
+  delete req.session;
   req.logout();
   res.redirect("/");
 });
@@ -114,9 +118,7 @@ var authorize = function(req, res, next) {
 app.get("/users/:user_id", authenticate, authorize, function(req, res) {
 
   User
-  .findOne(req.params.id,{
-    include: Desired
-  })
+  .findOne(req.params.id)
   .then(function(user) {
     res.send(user);
   });
@@ -150,64 +152,42 @@ app.delete("/users/:user_id", authenticate, authorize, function(req, res) {
   });
 });
 
-//Desired Routes
-
-app.get("/users/:user_id/desireds", function(req, res) {
-
-  Desired
-  .findAll({
-    where: {
-      user_id: req.params.id
-    } 
-  })
-  .then(function(desireds) {
-    res.send(desireds);
-  });
-});
-
-//Test Call
-app.get("/search", function(req, res) {
+//A test to see a user's messages
+app.get("/messages_test", function(req, res) {
 
   var options = {
-    url: "https://api.angel.co/1/search?query=health+care&LocationTag=new+york&type=Startup",
-    headers: {}
+    url: "https://api.angel.co/1/messages",
+    headers: {
+      Authorization: req.session.token
+    }
   };
+
+  request(options, function(error, response, body) {
+    res.send(body);
+  });
+
+});
+
+//A test to see an individual thread between two users
+app.get("/thread_test", function(req, res) {
+  var options = {
+    url: "https://api.angel.co/1/messages/50301740",
+    headers: {
+      Authorization: req.session.token
+    }
+  }
 
   request(options, function(error, response, body) {
     res.send(body);
   });
 });
 
-app.post("/users/:user_id/desireds", authenticate, authorize, function(req, res) {
-
-  //TODO: Find the desired person an AngelList and store their
-  //AngelList id. This will entail parsing the entered description 
-  //and finding the right person or position.
+//A test to a user's status updates
+//This returns every single status of a user
+app.get("/status_test", function(req, res) {
 
   var options = {
-    url: "https://api.angel.co/1/search?type=User"
-  }
-
-
-
-  Desired
-  .create({
-    user_id: req.body.user_id,
-    description: req.body.description,
-    type: req.body.type,
-    angellist_id: "loremipsum"
-  })
-})
-
-//Just the path option
-app.get("/path_test/:user_id/:type/:angel_id_of_desired", authenticate, authorize, function(req, res) {
-  
-  var angelIDOfDesired = parseInt( req.params.angel_id_of_desired );
-  var queryLeft = (req.params.type === "user" ? "user_ids" : "startup_ids"); 
-  var queryString = queryLeft + angelIDOfDesired;
-
-  var options = {
-    url: "https://api.angel.co/1/paths?" + queryString,
+    url: "https://api.angel.co/1/status_updates",
     headers: {
       Authorization: req.session.token
     }
@@ -217,7 +197,6 @@ app.get("/path_test/:user_id/:type/:angel_id_of_desired", authenticate, authoriz
     res.send(body);
   });
 });
-
 
 app.listen(3000, function() {
   console.log("Server on 3000");
