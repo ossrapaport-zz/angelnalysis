@@ -19,6 +19,8 @@ var application_root  = __dirname,
 
 
 var app = express();
+app.set("views", "./views");
+app.set("view engine", "jade");
 
 environment.load();
 app.use(logger("dev"));
@@ -59,6 +61,17 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
+app.get("/login", function(req, res) {
+
+  request.get("/auth/angellist", 
+    passport.authenticate("angellist"),
+    function(error, response, body) {
+      console.log("Error:", error);
+      console.log("In here");
+    });
+});
+
+
 app.get('/auth/angellist',
   passport.authenticate('angellist'),
   function(req, res) {}
@@ -67,6 +80,7 @@ app.get('/auth/angellist',
 app.get('/logged_in', 
   passport.authenticate('angellist', { failureRedirect: '/login' }),
   function(req, res) {
+    console.log(req);
     req.session.token = currentAccessToken;
     var userName = req.user._json.name;
     var angellistID = req.user._json.id;
@@ -86,7 +100,8 @@ app.get('/logged_in',
     })
     .then(function(user) {
       req.session.currentUser = user[0].id; 
-      res.send(user[0]);
+      //res.send(user[0]);
+      res.render("index", {message: "It works"});
     });
 });
 

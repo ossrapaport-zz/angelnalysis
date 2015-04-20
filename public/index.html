@@ -7,9 +7,98 @@
   <script src='http://underscorejs.org/underscore-min.js'></script>
   <script src="http://backbonejs.org/backbone-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js"></script>
+  <script src="js/models/user.js"></script>
+  <script src="js/models/result.js"></script>
+  <script src="js/views/login.js"></script>
+  <script src="js/views/result.js"></script>
+  <script src="js/views/topbar.js"></script>
+  <script src="js/views/user_home.js"></script>
+  <script src="js/views/user_profile.js"></script>
   <script src="js/app.js"></script>
 </head>
 <body>
-  <a href="/auth/angellist" id="login">Log In</a>
+  <!-- DOM Elements -->
+  <div id="header"></div>
+  <div id="inner-page">
+    <div id="app-wrapper">
+    </div>
+  </div>
+
+  <!--Templates-->
+  <template id="topbar-template">
+    <a href="/" id="home-button">Angel Analytics</a>
+    <nav id="topbar-menu">
+      <a id="topbar-profile">Profile</a>
+      <a id="topbar-analyze">Analyze Me</a>
+      <a id="topbar-logout">Logout</a>
+    </nav>
+  </template>
+
+  <!-- The login structure is from Five Labs - use their styles -->
+  <template id="login-template">
+    <div id="login-logo"><span class="logo">Angelnalysis</span></div>
+    <div class="content">
+      <section class="signup-description">
+        <h2 id="signup-title">See how you present yourself on AngelList</h2>
+        <p id="signup-explanation">We look at all your data on AngelList, from messages to status updates, and analyze how you present yourself on AngelList.</p>
+      </section>
+      <a id="login-button" href="/auth/angellist">
+      <!-- <a id="login-button"> -->
+        <span class="button-text">
+          <!-- TODO: Change the below to find the correct favicon 
+          <link rel="icon" href="/angellist/favicon">
+          -->
+          Login
+        </span>
+      </a>
+      <p class="privacy-guarantee">We are committed to your privacy and will never store any sensitive Facebook data like your password. We do, however, store your personality data for purely academic purposes.</p>
+    </div>
+  </template>
+
+  <template id="user-profile-template">
+    <div id="name"><h2 align="center">Welcome, {{name}}.</h2></div>
+    <h3 align="center">This is your account information.</h3>
+    <h4>Here is all the information we store.</h4>
+    <img src="{{image}}" alt="Your AngelList Photo">
+    <h5>Name: {{name}}</h5>
+    <h5>Email: {{email}}</h5>
+    {{#if results}}
+      <h3>Your Past Results</h3>
+      <p>Click on one to view it fully.</p>
+      {{#each results}}
+        <div class="result-tag" result-id="{{id}}">
+          <p>Openness: {{openness_score}}</p>
+          <p>Conscientiousness: {{conscientiousness_score}}</p>
+          <p>Extraversion: {{extraversion_score}}</p>
+          <p>Agreeableness: {{agreeableness_score}}</p>
+          <p>Neuroticism: {{neuroticism_score}}</p>
+        </div>
+      {{/each}}
+    {{/if}}
+    <div id="past-result-display">
+      <!-- Put a little D3 swirls in here -->
+    </div>
+  </template>
+
+  <template id="main-user-template">
+    <div id="name"><h2 align="center">Welcome, {{name}}.</h2></div>
+    <a id="search-button">
+      <span class="button-text">
+        <!-- TODO: Change the below to find the correct favicon 
+        <link rel="icon" href="/angellist/favicon">
+        -->
+        Analyze My Profile
+      </span>
+    </a>
+    <div id="new-result-container">
+      <!-- Put a little D3 swirling in here -->
+    </div>
+  </template>
+
+  <!-- Set up this template to be D3-friendly -->
+  <template id="result-template">
+    <p>Lorem Ipsum</p>
+  </template>
+
 </body>
 </html>
