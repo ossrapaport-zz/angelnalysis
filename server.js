@@ -12,6 +12,7 @@ var application_root  = __dirname,
     session           = require("express-session"),
     models            = require("./models"),
     path              = require("path"),
+    async             = require("async"),
     environment       = require("dotenv"),
     //Note that you added options._scope in below.
     AngelListStrategy = require('passport-angellist').Strategy;
@@ -32,7 +33,7 @@ app.use(session({
 }));
 
 var User = models.users;
-var Desired = models.desireds;
+var Result = models.results;
 
 var currentAccessToken;
 
@@ -90,14 +91,16 @@ app.get('/logged_in',
 });
 
 
-app.get("/logout", function(req, res) {
-  delete req.session;
+app.delete("/logout", function(req, res) {
+  delete req.session.currentUser;
+  delete req.session.token;
+  delete req.session.angelID;
   req.logout();
-  res.redirect("/");
+  res.send({msg: "Logged out"});
 });
 
 var authenticate = function(req, res, next) {
-  req.session.token && req.session.currentUser ? next() : res.status(400).send({
+  req.session.token && req.session.angelID && req.session.currentUser ? next() : res.status(400).send({
     err: 400,
     msg: "You have to login first"
   });
@@ -118,7 +121,10 @@ var authorize = function(req, res, next) {
 app.get("/users/:user_id", authenticate, authorize, function(req, res) {
 
   User
-  .findOne(req.params.id)
+  .findOne({
+    where: {id: req.params.id},
+    include: Result
+  })
   .then(function(user) {
     res.send(user);
   });
@@ -152,6 +158,118 @@ app.delete("/users/:user_id", authenticate, authorize, function(req, res) {
   });
 });
 
+//Result Routes
+
+app.get("/:user_id/results", authenticate, authorize, function(req, res) {
+
+  Result
+  .findAll({
+    where: {user_id: req.params.user_id}
+  })
+  .then(function(results) {
+    res.send(results);
+  });
+});
+
+app.get("/:user_id/results/:result_id", authenticate, authorize, function(req, res) {
+
+  Result
+  .findOne(req.params.result_id)
+  .then(function(result) {
+    res.send(result);
+  });
+});
+
+//TODO: Change this to a post request, is just a get for easier view
+//TODO: Add user auth middleware, not currently in here for easier view
+app.get("/results", function(req, res) {
+
+  //First get all the text this user has ever written
+  //and store it in an array for ease
+  var userTextArray = [];
+
+  //Start with profile text
+  var userJSON = req.user._json;
+  userTextArray.push(userJSON.bio);
+  userTextArray.push(userJSON.what_ive_built);
+  userTextArray.push(userJSON.what_i_do);
+  userTextArray.push(userJSON.criteria);
+
+  //Then create a general options variable to go with each request
+  var options = {
+    url: "loremipsum",
+    headers: {
+      Authorization: req.session.token
+    },
+    json: true
+  };
+//TODO: Make this much DRYer and more intelligible. How can I do that?
+  async.parallel([
+    function(bigCallback) {
+      //Next, look at the user's status updates
+      options.url = "https://api.angel.co/1/status_updates";
+      request(options, function(error, response, body) {
+        var userStatuses = body.status_updates;
+        userStatuses.forEach(function(status) {
+          userTextArray.push(status.message);
+        });
+        bigCallback(null);
+        //TODO: If more than one page of results, account for it
+      });
+    },
+    function(bigCallback) {
+      //Then, get the user's messages
+      async.waterfall([
+        function(mediumCallback) {
+          //Make an array of the IDs of all the threads in which
+          //the user has written
+          var threadsIDArray = [];
+          options.url = "https://api.angel.co/1/messages";
+          //TODO: Account for more than one page of messages
+          request(options, function(error, response, body) {
+            var messages = body.messages;
+            messages.forEach(function(message) {
+              threadsIDArray.push(message.thread_id);
+            });
+            mediumCallback(null, threadsIDArray);
+          });
+        //Pass the threads ID array along to the next function
+        }, function(threadsIDArray, mediumCallback) {
+          //TODO: Find out why the below is console logged twice???
+          console.log("1010");
+          //Find those threads and request each one of them
+          async.each(threadsIDArray, function(threadID, smallCallback) {
+            options.url = "https://api.angel.co/1/messages/" + threadID,
+            request(options, function(error, response, body) {
+              //Get the messages array from each thread
+              var messages = body.messages;
+              messages.forEach(function(message) {
+                //If the user sent the message, get that text
+                if (parseInt( message.sender_id ) === parseInt( req.session.angelID )) {
+                  userTextArray.push(message.body);
+                }
+              });
+              //Once the messages are in the text array, callback time
+              smallCallback();      
+            });
+          }, function(err) {
+            if (err) res.status(500).send({err: 500, msg: "Houston, we've got a problem"});
+            //If no error, the text array has what it needs so callback
+            mediumCallback();
+          });
+        }
+      ], function(err, result) {
+        //THE FINAL CALLBACK
+        bigCallback();
+      });
+    }
+  ],
+  function(err, results) {
+    res.send(userTextArray);
+  });
+
+});
+
 //A test to see a user's messages
 app.get("/messages_test", function(req, res) {
 
@@ -159,7 +277,8 @@ app.get("/messages_test", function(req, res) {
     url: "https://api.angel.co/1/messages",
     headers: {
       Authorization: req.session.token
-    }
+    },
+    json: true
   };
 
   request(options, function(error, response, body) {
@@ -174,7 +293,8 @@ app.get("/thread_test", function(req, res) {
     url: "https://api.angel.co/1/messages/50301740",
     headers: {
       Authorization: req.session.token
-    }
+    },
+    json: true
   }
 
   request(options, function(error, response, body) {
@@ -182,7 +302,7 @@ app.get("/thread_test", function(req, res) {
   });
 });
 
-//A test to a user's status updates
+//A test to see a user's status updates
 //This returns every single status of a user
 app.get("/status_test", function(req, res) {
 
@@ -190,7 +310,8 @@ app.get("/status_test", function(req, res) {
     url: "https://api.angel.co/1/status_updates",
     headers: {
       Authorization: req.session.token
-    }
+    },
+    json: true
   };
 
   request(options, function(error, response, body) {
