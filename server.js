@@ -40,7 +40,7 @@ var Result = models.results;
 var currentAccessToken;
 
 passport.use(new AngelListStrategy({
-  clientID: process.env.ANGEL_LIST_CLIENT_ID,
+  clientID:     process.env.ANGEL_LIST_CLIENT_ID,
   clientSecret: process.env.ANGEL_LIST_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/logged_in"
 }, function(accessToken, refreshToken, profile, done) {
@@ -49,6 +49,7 @@ passport.use(new AngelListStrategy({
     return done(null, profile);
   });
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
@@ -62,7 +63,6 @@ passport.deserializeUser(function(obj, done) {
 });
 
 app.get("/login", function(req, res) {
-
   request.get("/auth/angellist", 
     passport.authenticate("angellist"),
     function(error, response, body) {
@@ -99,9 +99,10 @@ app.get('/logged_in',
       }
     })
     .then(function(user) {
-      req.session.currentUser = user[0].id; 
-      //res.send(user[0]);
-      res.render("index", {message: "It works"});
+      req.session.currentUser = user[0].id;
+      // res.send(user[0]);
+      // res.render("index", {message: "It works"});
+      res.redirect("/#logged-in");
     });
 });
 
