@@ -12,15 +12,16 @@ App.Views.Login = Backbone.View.extend({
   },
 
   login: function() {
-    $.get("/auth/angellist")
+    $.get("/login")
     .done(function(user) {
+      debugger; //DO I EVER HIT THIS? NO
       //TODO: Either make a new user model or set the user
       //with this data.
     });
   },
 
   events: {
-    "click #login-button": "login"
+    //"click #login-button": "login"
   }
 
 

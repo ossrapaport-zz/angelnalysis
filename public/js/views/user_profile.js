@@ -23,7 +23,7 @@ App.Views.UserProfile = Backbone.View.extend({
   },
 
   events: {
-    "click .result-tag": showAResult
+    "click .result-tag": "showAResult"
   }
 
 });

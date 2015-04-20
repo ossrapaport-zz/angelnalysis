@@ -1,4 +1,4 @@
-App.Models.Result = Backbone.Models.extend({
+App.Models.Result = Backbone.Model.extend({
 
   initialize: function() {
     console.log("New Result Model");

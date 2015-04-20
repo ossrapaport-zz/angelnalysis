@@ -7,8 +7,8 @@
   <script src='http://underscorejs.org/underscore-min.js'></script>
   <script src="http://backbonejs.org/backbone-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js"></script>
-  <script src="js/models/result.js"></script>
   <script src="js/models/user.js"></script>
+  <script src="js/models/result.js"></script>
   <script src="js/views/login.js"></script>
   <script src="js/views/result.js"></script>
   <script src="js/views/topbar.js"></script>
@@ -20,7 +20,7 @@
   <!-- DOM Elements -->
   <div id="header"></div>
   <div id="inner-page">
-    <div class="app-wrapper">
+    <div id="app-wrapper">
     </div>
   </div>
 
@@ -42,7 +42,8 @@
         <h2 id="signup-title">See how you present yourself on AngelList</h2>
         <p id="signup-explanation">We look at all your data on AngelList, from messages to status updates, and analyze how you present yourself on AngelList.</p>
       </section>
-      <a id="login-button">
+      <a id="login-button" href="/auth/angellist">
+      <!-- <a id="login-button"> -->
         <span class="button-text">
           <!-- TODO: Change the below to find the correct favicon 
           <link rel="icon" href="/angellist/favicon">
