@@ -9,20 +9,8 @@ App.Views.Login = Backbone.View.extend({
 
   render: function() {
     this.$el.html(this.template);
-  },
-
-  login: function() {
-    $.get("/login")
-    .done(function(user) {
-      debugger; //DO I EVER HIT THIS? NO
-      //TODO: Either make a new user model or set the user
-      //with this data.
-    });
-  },
-
-  events: {
-    //"click #login-button": "login"
+    //TODO: Find out how to fix router's not being defined yet
+    //App.router.navigate("login");
   }
-
 
 });

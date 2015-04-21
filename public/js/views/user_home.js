@@ -6,12 +6,18 @@ App.Views.UserHome = Backbone.View.extend({
     console.log("New User Home View");
     this.template = Handlebars.compile( $("#main-user-template").html() );
     //TODO: Evaluate the below while using set
-    this.listenTo(this.model, "change", this.render);
+    //this.listenTo(this.model, "change", this.render);
   },
 
   render: function() {
     var compiledTemplate = this.template( this.model.toJSON() );
     this.$el.html(compiledTemplate);
+    var userID = Backbone.history.fragment.split("/")[1];
+    App.router.navigate("home/" + userID);
+  },
+
+  setUser: function(user) {
+    this.model = user;
   },
 
   searchForAnalysis: function() {

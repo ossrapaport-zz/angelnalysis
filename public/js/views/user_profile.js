@@ -5,12 +5,14 @@ App.Views.UserProfile = Backbone.View.extend({
   initialize: function() {
     console.log("New User View");
     this.template = Handlebars.compile( $("#user-profile-template").html() );
-    this.listenTo(this.model, "change", this.render);
+    //this.listenTo(this.model, "change", this.render);
   },  
 
   render: function() {
     var compiledTemplate = this.template( this.model.toJSON() );
     this.$el.html(compiledTemplate);
+    var userID = Backbone.history.fragment.split("/")[1];
+    App.router.navigate("profile/" + userID);
   },
 
   setUser: function(user) {

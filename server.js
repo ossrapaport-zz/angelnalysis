@@ -19,8 +19,6 @@ var application_root  = __dirname,
 
 
 var app = express();
-app.set("views", "./views");
-app.set("view engine", "jade");
 
 environment.load();
 app.use(logger("dev"));
@@ -100,9 +98,7 @@ app.get('/logged_in',
     })
     .then(function(user) {
       req.session.currentUser = user[0].id;
-      // res.send(user[0]);
-      // res.render("index", {message: "It works"});
-      res.redirect("/#logged-in");
+      res.redirect("/#home/" + req.session.currentUser);
     });
 });
 
@@ -136,9 +132,11 @@ var authorize = function(req, res, next) {
 
 app.get("/users/:user_id", authenticate, authorize, function(req, res) {
 
+  console.log("HERE");
+  console.log(req.params.user_id);
   User
   .findOne({
-    where: {id: req.params.id},
+    where: {id: req.params.user_id},
     include: Result
   })
   .then(function(user) {
@@ -151,7 +149,7 @@ app.get("/users/:user_id", authenticate, authorize, function(req, res) {
 app.put("/users/:user_id", authenticate, authorize, function(req, res) {
 
   User
-  .findOne(req.params.id)
+  .findOne(req.params.user_id)
   .then(function(user) {
     user
     .update(req.body)
