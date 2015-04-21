@@ -66,6 +66,7 @@
     {{#if results}}
       <h3>Your Past Results</h3>
       <p>Click on one to view it fully.</p>
+      <br>
       {{#each results}}
         <div class="result-tag" result-id="{{id}}">
           <p>Openness: {{openness_score}}</p>
@@ -74,6 +75,7 @@
           <p>Agreeableness: {{agreeableness_score}}</p>
           <p>Neuroticism: {{neuroticism_score}}</p>
         </div>
+        <br>
       {{/each}}
     {{/if}}
     <div id="past-result-display">

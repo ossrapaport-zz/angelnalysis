@@ -20,8 +20,14 @@ App.Views.UserProfile = Backbone.View.extend({
   },
 
   showAResult: function(event) {
-    //Get the event's target, set its element as the past
-    //result display, and then show it
+    var resultID = $(event.currentTarget).attr("result-id");
+    var userID = Backbone.history.fragment.split("/")[1];
+    $.get("/results/" + userID + "/" + resultID)
+    .done(renderResult);
+  },
+
+  renderResult: function(result) {
+    //TODO: Make the result show up here with D3 
   },
 
   events: {

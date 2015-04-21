@@ -3,7 +3,6 @@ App.Routers.Main = Backbone.Router.extend({
   initialize: function() {
     console.log("New router initialized");
 
-
     App.topbar = new App.Views.Topbar();
 
     App.userHome = new App.Views.UserHome();

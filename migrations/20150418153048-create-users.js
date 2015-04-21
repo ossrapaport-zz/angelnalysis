@@ -21,6 +21,18 @@ module.exports = {
         unique: true,
         type: DataTypes.STRING
       },
+      bio: {
+        type: DataTypes.TEXT
+      },
+      what_ive_built: {
+        type: DataTypes.TEXT
+      },
+      what_i_do: {
+        type: DataTypes.TEXT
+      },
+      criteria: {
+        type: DataTypes.TEXT
+      },
       created_at: {
         allowNull: false,
         type: DataTypes.DATE

@@ -9,19 +9,19 @@ module.exports = {
         type: DataTypes.INTEGER
       },
       openness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       conscientiousness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       extraversion_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       agreeableness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       neuroticism_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       most_messaged_friend: {
         type: DataTypes.STRING

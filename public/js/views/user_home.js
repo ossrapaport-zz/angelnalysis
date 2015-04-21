@@ -25,9 +25,8 @@ App.Views.UserHome = Backbone.View.extend({
     .done(this.renderResult.bind(this));
   },
 
-  renderResult: function(data) {
-    //TODO: Make a result show up. Either set it or just use
-    //the raw data
+  renderResult: function(result) {
+    //TODO: Make a result show up with D3
   },
 
   events: {
