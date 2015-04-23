@@ -26,10 +26,19 @@ module.exports = {
       most_messaged_friend: {
         type: DataTypes.STRING
       },
+      most_messaged_friend_bio: {
+        type: DataTypes.TEXT
+      },
       most_followed_follower: {
         type: DataTypes.STRING
       },
+      most_followed_follower_bio: {
+        type: DataTypes.TEXT
+      },
       most_followed_following: {
+        type: DataTypes.STRING
+      },
+      most_followed_following_bio: {
         type: DataTypes.STRING
       },
       user_id: {

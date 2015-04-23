@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>AngelList Test</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
   <script src='http://underscorejs.org/underscore-min.js'></script>
   <script src="http://backbonejs.org/backbone-min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js"></script>
   <script src="js/app.js"></script>
   <script src="js/routers/app_router.js"></script>
@@ -27,7 +30,7 @@
 
   <!--Templates-->
   <template id="topbar-template">
-    <a href="/" id="home-button">Angel Analytics</a>
+    <a href="/" id="home-button">Angelnalysis</a>
     <nav id="topbar-menu">
       <a id="topbar-profile">Profile</a>
       <a id="topbar-analyze">Analyze Me</a>
@@ -37,22 +40,25 @@
 
   <!-- The login structure is from Five Labs - use their styles -->
   <template id="login-template">
-    <div id="login-logo"><span class="logo">Angelnalysis</span></div>
+    <div id="login-logo"><span class="logo">Angel<span style="color: #bdc3c7">nalysis</span>.</div>
     <div class="content">
       <section class="signup-description">
-        <h2 id="signup-title">See how you present yourself on AngelList</h2>
+        <h2 id="signup-title" align="center">See how you present yourself on AngelList.</h2>
         <p id="signup-explanation">We look at all your data on AngelList, from messages to status updates, and analyze how you present yourself on AngelList.</p>
       </section>
+      <div class="wrap-left">
+        Login with
+        <div class="clear-top"></div>
       <a id="login-button" href="/auth/angellist">
-      <!-- <a id="login-button"> -->
-        <span class="button-text">
-          <!-- TODO: Change the below to find the correct favicon 
-          <link rel="icon" href="/angellist/favicon">
-          -->
-          Login
+        <img src="http://wedid.it/assets/angellist-logo.png" width="300">
+      <br />
+        <span class="button-text" id="angel-logo">         
         </span>
       </a>
+    </div>
+    <div class="wrap-right">
       <p class="privacy-guarantee">We are committed to your privacy and will never store any sensitive Facebook data like your password. We do, however, store your personality data for purely academic purposes.</p>
+    </div>
     </div>
   </template>
 
@@ -87,15 +93,13 @@
     <div id="name"><h2 align="center">Welcome, {{name}}.</h2></div>
     <a id="search-button">
       <span class="button-text">
-        <!-- TODO: Change the below to find the correct favicon 
-        <link rel="icon" href="/angellist/favicon">
-        -->
         Analyze My Profile
       </span>
     </a>
-    <div id="new-result-container">
+    <div id="left-result-container">
       <!-- Put a little D3 swirling in here -->
     </div>
+    <div id="right-result-container"></div>
   </template>
 
   <!-- Set up this template to be D3-friendly -->

@@ -1,0 +1,120 @@
+
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: #222222;
+}
+
+#header {
+  width: 100%;
+  height: 50px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  color: #fff;
+  background: #2c3e50
+}
+
+h1, h2 {
+  color: #2c3e50;
+}
+
+.center {
+  display: block;
+  width: 1050px;
+  margin: 0 auto
+}
+
+.clear-top {
+  clear: both;
+  margin-top: 8px;
+}
+
+.logo {
+  font-size: 50px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#login-logo {
+  width: 340px;
+  margin: 0 auto;
+}
+
+#topbar-menu {
+  float: right;
+  padding: 10px;
+}
+
+#topbar-menu a {
+  margin-right: 8px;
+}
+
+#home-button {
+  font-size: 20px;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+  padding-top: 16px;
+}
+
+.button-text {
+  text-decoration: none;
+
+}
+
+#angel-logo {
+  
+}
+
+#app-wrapper {
+  width: 800px;
+  display: block;
+  margin: 100px auto;
+}
+
+.wrap-left {
+  padding-top:30px;
+  width: 40%;
+  height: 150px;
+  float: left;
+  border-right: 4px solid #bdc3c7;
+}
+
+.wrap-right {
+  padding-top: 20px;
+  width: 50%;
+  float: right;
+}
+
+#search-button {
+    border: none;
+    display: block;
+    background: #84929f;
+    height: 40px;
+    width: 260px;
+    padding: 8px;
+    color: #ffffff;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 24px;
+    -webkit-transition: all 0.15s linear;
+    -moz-transition: all 0.15s linear;
+    transition: all 0.15s linear;
+    margin: 0 auto;
+}
+
+#search-button:hover {
+  background: #2c3e50;
+}
+
+#left-result-container {
+  float: left;  
+  margin: 0 auto;
+}
+
+#right-result-container {
+  float: right;
+  margin: 0 auto;
+}

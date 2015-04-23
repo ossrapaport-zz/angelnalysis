@@ -181,7 +181,7 @@
 
 //PIE CHARTS
 
-  var colorScale = d3.scale.ordinal()
+/*  var colorScale = d3.scale.ordinal()
       .range(["red", "blue", "orange"]);
 
   var canvas = d3.select("body").append("svg")
@@ -223,10 +223,703 @@
       .attr("font-size", "1.5em")
       .text(function(d) {
         return d.data;
+      });*/
+
+//DIAGONAL PATHS - The diagonal path you will use
+/*
+  var canvas = d3.select("body").append("svg")
+                  .attr("height", 500)
+                  .attr("width", 500);
+
+  var diagonal = d3.svg.diagonal()
+      .source({x: 10, y: 10})
+      .target({x: 300, y: 300})
+
+  canvas.append("path")
+        .attr("fill", "none")
+        .attr("stroke", "black")
+        .attr("d", diagonal)
+*/
+//TREE LAYOUT
+/*  var data = {
+    "name": "Max",
+    "children": [
+      {
+        "name": "Sylvia",
+        "children": [
+          {"name": "Craig"},
+          {"name": "Robin"},
+          {"name": "Anna"}
+        ]
+      },
+      {
+        "name": "David",
+        "children": [
+        {"name": "Jeff", "size": 3534},
+        {"name": "Craig", "size": 5731}
+        ]
+      }
+    ]
+  };
+
+  var canvas = d3.select("body").append("svg")
+                  .attr("width", 500)
+                  .attr("height", 500)
+                  .append("g")
+                    .attr("transform", "translate(50,50)");
+  //If d3.layout.tree() is set to d3.layout.cluster(),
+  //any objects without children will be placed at the end
+  var tree = d3.layout.tree()
+      .size([400, 400])
+
+  var nodes = tree.nodes(data);
+  var links = tree.links(nodes);
+  
+  var node = canvas.selectAll(".node")
+                    .data(nodes)
+                    .enter()
+                      .append("g")
+                        .attr("class", "node")
+                        .attr("transform", function(d) {
+                          return "translate(" + d.y + "," + d.x + ")";
+                        });
+
+  node.append("circle")
+      .attr("r", 5)
+      .attr("fill", "steelblue");
+
+  node.append("text")
+      .text(function(d) {
+        return d.name;
       });
 
+  var diagonal = d3.svg.diagonal()
+      .projection(function(d) {
+        return [d.y, d.x];
+      });
 
+  canvas.selectAll(".link")
+        .data(links)
+        .enter()
+          .append("path")
+          .attr("class", "link")
+          .attr("fill", "none")
+          .attr("stroke", "#ADADAD")
+          .attr("d", diagonal);*/
 
+//PACK AND BUBBLE LAYOUTS
+/*  var data = {
+      "name": "Max",
+      "value": 100,
+      "children": [
+        {
+          "name": "Sylvia",
+          "value": 75,
+          "children": [
+            {"name": "Craig", "value": 25},
+            {"name": "Robin", "value": 25},
+            {"name": "Anna", "value": 25}
+          ]
+        },
+        {
+          "name": "David",
+          "value": 75,
+          "children": [
+          {"name": "Jeff", "value": 25},
+          {"name": "Craig", "value": 25}
+          ]
+        },
+        {
+          "name": "Mr. X",
+          "value": 75
+        }
+      ]
+    };
+
+  var data2 = {
+    "name": "Max",
+    "value": 100,
+    "children": [
+      {"name": "Max", "value": 100},
+      {"name": "Max", "value": 125},
+      {"name": "Max", "value": 50},
+      {"name": "Max", "value": 78},
+      {"name": "Max", "value": 24},
+      {"name": "Max", "value": 210},
+      {"name": "Max", "value": 140},
+      {"name": "Max", "value": 90}
+    ]
+  }
+
+  var width = 800;
+  var height = 600;
+
+  var canvas = d3.select("body").append("svg")
+                  .attr("width", width)
+                  .attr("height", height)
+                  .append("g")
+                    .attr("transform", "translate(50, 50)");
+
+  var pack = d3.layout.pack()
+      .size([width, height - 50])
+      .padding(10);
+
+  var nodes = pack.nodes(data2);
+
+  var node = canvas.selectAll(".node")
+                    .data(nodes)
+                    .enter()
+                      .append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                      });
+
+  node.append("circle")
+      .attr("r", function(d) {
+        return d.r;
+      })
+      .attr("fill", function(d) {
+        return d.children ? "white" : "steelblue";
+      })
+      .attr("opacity", 0.25)
+      .attr("stroke", function(d) {
+        return d.children ? "white" : "#ADADAD"
+      })
+      .attr("stroke-width", "2");
+
+  node.append("text")
+      .text(function(d) {
+        return d.children ? "" : d.name;
+      });*/
+
+//HISTOGRAM LAYOUT
+/*  var data = [4, 5, 11, 15, 17, 19, 29, 93, 101, 105, 48, 56, 42, 64, 94, 95, 96, 100, 14, 24, 34, 44, 47, 74, 21, 37, 44, 56, 67, 82, 84, 86, 70, 23, 34, 46, 20];
+
+  var width = 500;
+  var height = 500;
+  var padding = 50;
+
+  var canvas = d3.select("body").append("svg")
+                  .attr("width", width)
+                  .attr("height", height + padding)
+                  .append("g")
+                    .attr("transform", "translate(20,0)");
+
+  var histogram = d3.layout.histogram()
+      .bins(7)
+      (data)
+
+  var y = d3.scale.linear()
+            .domain([0, d3.max(histogram.map(function(i) {
+              return i.length;
+            }))])
+            .range([0, height]);
+
+  var x = d3.scale.linear()
+            .domain([0, d3.max(data)])
+            .range([0, width]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+  var group = canvas.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+
+  var bars = canvas.selectAll(".bar")
+                    .data(histogram)
+                    .enter()
+                      .append("g")
+
+  bars.append("rect")
+      .attr("x", function(d) {
+        return x(d.x);
+      })
+      .attr("y", function(d) {
+        return 500 - y(d.y);
+      })
+      .attr("width", function(d) {
+        return d.dx * 5 - 5;
+      })
+      .attr("height", function(d) {
+        return y(d.y);
+      })
+      .attr("fill", "steelblue");
+
+  bars.append("text")
+      .attr("x", function(d) {
+        return x(d.x);
+      })
+      .attr("y", function(d) {
+        return 500 - y(d.y);
+      })
+      .attr("dy", "20")
+      .attr("dx", function(d) {
+        return x(d.dx)/2;
+      })
+      .attr("fill", "#fff")
+      .attr("text-anchor", "middle")
+      .text(function(d) {
+        return d.y;
+      });*/
+
+/*//PENTAGON
+
+  var width = 500;
+  var height = 500;
+
+  var canvas = d3.select("body").append("svg")
+                  .attr("width", width)
+                  .attr("height", height)
+                  .append("g")
+                    .attr("transform", "translate(20,0)");
+
+  canvas.append("path")
+        .style("stroke", "black")
+        .style("fill", "none")
+        .attr("d", "M 250,150, L200,200, L214.645, 272.211, L285.356, 272.211, L300,200, Z");
+*/
+
+/*//PENTAGONAL AXES
+
+    var container = d3.select("body")
+        .append("svg")
+        .attr("width", 700)
+        .attr("height", 700);
+
+    var opennessScale = d3.scale.linear()
+        .domain([0, 300])
+        .range([0, 300]);
+
+    var axis1 = d3.svg.axis()
+        .scale(opennessScale);
+
+    var axis1Group = container.append("g")
+        .attr("transform", "translate(280,280) rotate(342)")
+        .call(axis1)
+        .style("fill", "none");
+
+    var axis2 = d3.svg.axis()
+        .scale(opennessScale);
+
+    var axis2Group = container.append("g")
+        .attr("transform", "translate(280,280) rotate(54)")
+        .call(axis2);      
+
+    var axis3 = d3.svg.axis()
+        .scale(opennessScale);
+
+    var axis3Group = container.append("g")
+        .attr("transform", "translate(280,280) rotate(126)")
+        .call(axis3);
+
+    var axis4 = d3.svg.axis()
+        .scale(opennessScale);
+
+    var axis4Group = container.append("g")
+        .attr("transform", "translate(280,280) rotate(198)")
+        .call(axis4);    
+
+    var axis5 = d3.svg.axis()
+        .scale(opennessScale)
+
+    var axis5Group = container.append("g")
+        .attr("transform", "translate(280,280) rotate(270)")
+        .call(axis5);  */
+//RADAR CHART FROM GITHUB
+  var RadarChart = {
+  defaultConfig: {
+    containerClass: 'radar-chart',
+    w: 600,
+    h: 600,
+    factor: 0.95,
+    factorLegend: 1,
+    levels: 3,
+    levelTick: false,
+    TickLength: 10,
+    maxValue: 0,
+    radians: 2 * Math.PI,
+    color: d3.scale.category10(),
+    axisLine: true,
+    axisText: true,
+    circles: true,
+    radius: 5,
+    backgroundTooltipColor: "#555",
+    backgroundTooltipOpacity: "0.7",
+    tooltipColor: "white",
+    axisJoin: function(d, i) {
+      return d.className || i;
+    },
+    transitionDuration: 300
+  },
+  chart: function() {
+    // default config
+    var cfg = Object.create(RadarChart.defaultConfig);
+    var tooltip;
+    function setTooltip(msg){
+      if(msg == false){
+        tooltip.classed("visible", 0);
+        tooltip.select("rect").classed("visible", 0);
+      }else{
+        tooltip.classed("visible", 1);
+            
+            var x = d3.event.x;
+                y = d3.event.y;
+
+        tooltip.select("text").classed('visible', 1).style("fill", "none");
+        var padding=5;
+        var bbox = tooltip.select("text").text(msg).node().getBBox();
+
+        tooltip.select("rect")
+        .classed('visible', 1).attr("x", 0)
+        .attr("x", bbox.x - padding)
+        .attr("y", bbox.y - padding)
+        .attr("width", bbox.width + (padding*2))
+        .attr("height", bbox.height + (padding*2))
+        .attr("rx","5").attr("ry","5")
+        .style("fill", cfg.backgroundTooltipColor).style("opacity", cfg.backgroundTooltipOpacity);
+        tooltip.attr("transform", "translate(" + x + "," + y + ")")
+      }
+    }
+    function radar(selection) {
+      selection.each(function(data) {
+        var container = d3.select(this);
+        tooltip = container.append("g");
+        tooltip.append('rect').classed("tooltip", true);
+        tooltip.append('text').classed("tooltip", true);
+
+        // allow simple notation
+        data = data.map(function(datum) {
+          if(datum instanceof Array) {
+            datum = {axes: datum};
+          }
+          return datum;
+        });
+
+        var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
+          return d3.max(d.axes, function(o){ 
+            return o.value; 
+          });
+        }));
+
+        var allAxis = data[0].axes.map(function(i, j){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
+        var total = allAxis.length;
+        var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
+
+        container.classed(cfg.containerClass, 1);
+
+        function getPosition(i, range, factor, func){
+          factor = typeof factor !== 'undefined' ? factor : 1;
+          return range * (1 - factor * func(i * cfg.radians / total));
+        }
+        function getHorizontalPosition(i, range, factor){
+          return getPosition(i, range, factor, Math.sin);
+        }
+        function getVerticalPosition(i, range, factor){
+          return getPosition(i, range, factor, Math.cos);
+        }
+
+        // levels && axises
+        var levelFactors = d3.range(0, cfg.levels).map(function(level) {
+          return radius * ((level + 1) / cfg.levels);
+        });
+
+        var levelGroups = container.selectAll('g.level-group').data(levelFactors);
+
+        levelGroups.enter().append('g');
+        levelGroups.exit().remove();
+
+        levelGroups.attr('class', function(d, i) {
+          return 'level-group level-group-' + i;
+        });
+
+        var levelLine = levelGroups.selectAll('.level').data(function(levelFactor) {
+          return d3.range(0, total).map(function() { return levelFactor; });
+        });
+
+        levelLine.enter().append('line');
+        levelLine.exit().remove();
+
+        if (cfg.levelTick){
+          levelLine
+          .attr('class', 'level')
+          .attr('x1', function(levelFactor, i){
+            if (radius == levelFactor) {
+              return getHorizontalPosition(i, levelFactor);
+            } else {
+              return getHorizontalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
+            }
+          })
+          .attr('y1', function(levelFactor, i){
+            if (radius == levelFactor) {
+              return getVerticalPosition(i, levelFactor);
+            } else {
+              return getVerticalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
+            }
+          })
+          .attr('x2', function(levelFactor, i){
+            if (radius == levelFactor) {
+              return getHorizontalPosition(i+1, levelFactor);
+            } else {
+              return getHorizontalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
+            }
+          })
+          .attr('y2', function(levelFactor, i){
+            if (radius == levelFactor) {
+              return getVerticalPosition(i+1, levelFactor);
+            } else {
+              return getVerticalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
+            }
+          })
+          .attr('transform', function(levelFactor) {
+            return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
+          });
+        }
+        else{
+          levelLine
+          .attr('class', 'level')
+          .attr('x1', function(levelFactor, i){ return getHorizontalPosition(i, levelFactor); })
+          .attr('y1', function(levelFactor, i){ return getVerticalPosition(i, levelFactor); })
+          .attr('x2', function(levelFactor, i){ return getHorizontalPosition(i+1, levelFactor); })
+          .attr('y2', function(levelFactor, i){ return getVerticalPosition(i+1, levelFactor); })
+          .attr('transform', function(levelFactor) {
+            return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
+          });
+        }
+        if(cfg.axisLine || cfg.axisText) {
+          var axis = container.selectAll('.axis').data(allAxis);
+
+          var newAxis = axis.enter().append('g');
+          if(cfg.axisLine) {
+            newAxis.append('line');
+          }
+          if(cfg.axisText) {
+            newAxis.append('text');
+          }
+
+          axis.exit().remove();
+
+          axis.attr('class', 'axis');
+
+          if(cfg.axisLine) {
+            axis.select('line')
+              .attr('x1', cfg.w/2)
+              .attr('y1', cfg.h/2)
+              .attr('x2', function(d, i) { return getHorizontalPosition(i, cfg.w / 2, cfg.factor); })
+              .attr('y2', function(d, i) { return getVerticalPosition(i, cfg.h / 2, cfg.factor); });
+          }
+
+          if(cfg.axisText) {
+            axis.select('text')
+              .attr('class', function(d, i){
+                var p = getHorizontalPosition(i, 0.5);
+
+                return 'legend ' +
+                  ((p < 0.4) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
+              })
+              .attr('dy', function(d, i) {
+                var p = getVerticalPosition(i, 0.5);
+                return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
+              })
+              .text(function(d) { return d.name; })
+              .attr('x', function(d, i){ return d.xOffset+ getHorizontalPosition(i, cfg.w/2, cfg.factorLegend); })
+              .attr('y', function(d, i){ return d.yOffset+ getVerticalPosition(i, cfg.h/2, cfg.factorLegend); });
+          }
+        }
+
+        // content
+        data.forEach(function(d){
+          d.axes.forEach(function(axis, i) {
+            axis.x = getHorizontalPosition(i, cfg.w/2, (parseFloat(Math.max(axis.value, 0))/maxValue)*cfg.factor);
+            axis.y = getVerticalPosition(i, cfg.h/2, (parseFloat(Math.max(axis.value, 0))/maxValue)*cfg.factor);
+          });
+        });
+        var polygon = container.selectAll(".area").data(data, cfg.axisJoin);
+
+        polygon.enter().append('polygon')
+          .classed({area: 1, 'd3-enter': 1})
+/*          .on('mouseover', function (dd){
+            d3.event.stopPropagation();
+            container.classed('focus', 1);
+            d3.select(this).classed('focused', 1);
+            console.log(dd);
+            setTooltip(dd.className);
+          })*/
+/*          .on('mouseout', function(){
+            d3.event.stopPropagation();
+            container.classed('focus', 0);
+            d3.select(this).classed('focused', 0);
+            setTooltip(false);
+          });*/
+
+        polygon.exit()
+          .classed('d3-exit', 1) // trigger css transition
+          .transition().duration(cfg.transitionDuration)
+            .remove();
+
+        polygon
+          .each(function(d, i) {
+            var classed = {'d3-exit': 0}; // if exiting element is being reused
+            classed['radar-chart-serie' + i] = 1;
+            if(d.className) {
+              classed[d.className] = 1;
+            }
+            d3.select(this).classed(classed);
+          })
+          // styles should only be transitioned with css
+          .style('stroke', function(d, i) { return cfg.color(i); })
+          .style('fill', "none")
+          .transition().duration(cfg.transitionDuration)
+            // svg attrs with js
+            .attr('points',function(d) {
+              return d.axes.map(function(p) {
+                return [p.x, p.y].join(',');
+              }).join(' ');
+            })
+            .each('start', function() {
+              d3.select(this).classed('d3-enter', 0); // trigger css transition
+            });
+
+        if(cfg.circles && cfg.radius) {
+
+          var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
+
+          circleGroups.enter().append('g').classed({'circle-group': 1, 'd3-enter': 1});
+          circleGroups.exit()
+            .classed('d3-exit', 1) // trigger css transition
+            .transition().duration(cfg.transitionDuration).remove();
+
+          circleGroups
+            .each(function(d) {
+              var classed = {'d3-exit': 0}; // if exiting element is being reused
+              if(d.className) {
+                classed[d.className] = 1;
+              }
+              d3.select(this).classed(classed);
+            })
+            .transition().duration(cfg.transitionDuration)
+              .each('start', function() {
+                d3.select(this).classed('d3-enter', 0); // trigger css transition
+              });
+
+          var circle = circleGroups.selectAll('.circle').data(function(datum, i) {
+            return datum.axes.map(function(d) { return [d, i]; });
+          });
+
+          circle.enter().append('circle')
+            .classed({circle: 1, 'd3-enter': 1})
+            .on('mouseover', function(dd){
+              d3.event.stopPropagation();
+              setTooltip(dd[0].value);
+              //container.classed('focus', 1);
+              //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 1);
+            })
+            .on('mouseout', function(dd){
+              d3.event.stopPropagation();
+              setTooltip(false);
+              container.classed('focus', 0);
+              //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 0);
+              //No idea why previous line breaks tooltip hovering area after hoverin point.
+            });
+
+          circle.exit()
+            .classed('d3-exit', 1) // trigger css transition
+            .transition().duration(cfg.transitionDuration).remove();
+
+          circle
+            .each(function(d) {
+              var classed = {'d3-exit': 0}; // if exit element reused
+              classed['radar-chart-serie'+d[1]] = 1;
+              d3.select(this).classed(classed);
+            })
+            // styles should only be transitioned with css
+            .style('fill', function(d) { return cfg.color(d[1]); })
+            .transition().duration(cfg.transitionDuration)
+              // svg attrs with js
+              .attr('r', cfg.radius)
+              .attr('cx', function(d) {
+                return d[0].x;
+              })
+              .attr('cy', function(d) {
+                return d[0].y;
+              })
+              .each('start', function() {
+                d3.select(this).classed('d3-enter', 0); // trigger css transition
+              });
+
+          // ensure tooltip is upmost layer
+          var tooltipEl = tooltip.node();
+          tooltipEl.parentNode.appendChild(tooltipEl);
+        }
+      });
+    }
+
+    radar.config = function(value) {
+      if(!arguments.length) {
+        return cfg;
+      }
+      if(arguments.length > 1) {
+        cfg[arguments[0]] = arguments[1];
+      }
+      else {
+        d3.entries(value || {}).forEach(function(option) {
+          cfg[option.key] = option.value;
+        });
+      }
+      return radar;
+    };
+
+    return radar;
+  },
+  draw: function(id, d, options) {
+    if(options === "default") {
+      var chart = RadarChart.chart().config(this.defaultConfig);
+    } else {
+      var chart = RadarChart.chart().config(options);    
+    };
+    var cfg = chart.config();
+
+    d3.select(id).select('svg').remove();
+    d3.select(id)
+      .append("svg")
+      .attr("width", cfg.w)
+      .attr("height", cfg.h)
+      .datum(d)
+      .call(chart);
+  },
+};
+
+var scores = [
+  [{
+    axis: "Agreeableness",
+    value: 10, 
+  },
+  {
+    axis: "Conscientiousness",
+    value: 13 
+  },
+  {
+    axis: "Extraversion",
+    value: 17
+  },
+  {
+    axis: "Neuroticism",
+    value: 22
+  },
+  {
+    axis: "Openness",
+    value: 26 
+  }],
+  [{axis: "Agreeableness", value: 20},
+  {axis: "Conscientiousness", value: 20},
+  {axis: "Extraversion", value: 20},
+  {axis: "Neuroticism", value: 20},
+  {axis: "Openness", value: 20}]
+];
+
+RadarChart.draw("body", scores, "default");
 
 
   </script>
