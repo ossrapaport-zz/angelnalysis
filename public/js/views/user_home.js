@@ -47,38 +47,45 @@ App.Views.UserHome = Backbone.View.extend({
   },
 
   renderRadarChart: function(result) {
-    
+    debugger;
     var scores = [
       [{
         axis: "Agreeableness",
-        value: result.agreeableness_score 
+        value: App.normalize(result.agreeableness_score, "Agreeableness")
       },
       {
         axis: "Conscientiousness",
-        value: result.conscientiousness_score 
+        value: App.normalize(result.conscientiousness_score, "Conscientiousness") 
       },
       {
         axis: "Extraversion",
-        value: result.extraversion_score
+        value: App.normalize(result.extraversion_score, "Extraversion")
       },
       {
         axis: "Neuroticism",
-        value: result.neuroticism_score
+        value: App.normalize(result.neuroticism_score, "Neuroticism")
       },
       {
         axis: "Openness",
-        value: result.openness_score 
+        value: App.normalize(result.openness_score, "Openness") 
       }],
       [
-        {axis: "Agreeableness", value: 4, type: "Scale"},
-        {axis: "Conscientiousness", value: 4},
-        {axis: "Extraversion", value: 4},
-        {axis: "Neuroticism", value: 4},
-        {axis: "Openness", value: 4}
+        {axis: "Agreeableness", value: .5, type: "Scale"},
+        {axis: "Conscientiousness", value: .5},
+        {axis: "Extraversion", value: .5},
+        {axis: "Neuroticism", value: .5},
+        {axis: "Openness", value: .5}
+      ],
+      [
+        {axis: "Agreeableness", value: 1, type: "Scale"},
+        {axis: "Conscientiousness", value: 1},
+        {axis: "Extraversion", value: 1},
+        {axis: "Neuroticism", value: 1},
+        {axis: "Openness", value: 1}
       ]
     ]; 
 
-    App.RadarChart.draw("#right-result-container", scores, true, "blue", 4);
+    App.RadarChart.draw("#right-result-container", scores, true, "blue", 1);
   },
 
   events: {

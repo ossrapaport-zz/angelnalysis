@@ -7,7 +7,7 @@ App.buildTree = function(element, valueData) {
                 .attr("width", width)
                 .attr("height", height)
                 .append("g")
-                  .attr("transform", "translate(50,50)");
+                  .attr("transform", "translate(0,50)");
 
   var update = function(desiredDepth) {
     //d3.select("svg").text("");
@@ -50,7 +50,8 @@ App.buildTree = function(element, valueData) {
     node.append("text")
         .text(function(d) {
           return d.name;
-        });
+        })
+        .attr("text-anchor", "middle");
 
     if (currentNodes.length > 1) {      
       var links = tree.links(currentNodes);
