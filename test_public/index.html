@@ -529,7 +529,7 @@
         .attr("transform", "translate(280,280) rotate(270)")
         .call(axis5);  */
 //RADAR CHART FROM GITHUB
-  var RadarChart = {
+var RadarChart = {
   defaultConfig: {
     containerClass: 'radar-chart',
     w: 600,
@@ -539,9 +539,10 @@
     levels: 3,
     levelTick: false,
     TickLength: 10,
-    maxValue: 0,
+    maxValue: 20,
     radians: 2 * Math.PI,
-    color: d3.scale.category10(),
+    coloring: d3.scale.category10(),
+    color: "",
     axisLine: true,
     axisText: true,
     circles: true,
@@ -558,6 +559,7 @@
     // default config
     var cfg = Object.create(RadarChart.defaultConfig);
     var tooltip;
+
     function setTooltip(msg){
       if(msg == false){
         tooltip.classed("visible", 0);
@@ -740,13 +742,13 @@
 
         polygon.enter().append('polygon')
           .classed({area: 1, 'd3-enter': 1})
-/*          .on('mouseover', function (dd){
-            d3.event.stopPropagation();
-            container.classed('focus', 1);
-            d3.select(this).classed('focused', 1);
-            console.log(dd);
-            setTooltip(dd.className);
-          })*/
+          //.on('mouseover', function (dd){
+            //d3.event.stopPropagation();
+            //container.classed('focus', 1);
+            //d3.select(this).classed('focused', 1);
+            //console.log(dd);
+            //setTooltip(dd.className);
+          //})
 /*          .on('mouseout', function(){
             d3.event.stopPropagation();
             container.classed('focus', 0);
@@ -758,7 +760,7 @@
           .classed('d3-exit', 1) // trigger css transition
           .transition().duration(cfg.transitionDuration)
             .remove();
-
+  
         polygon
           .each(function(d, i) {
             var classed = {'d3-exit': 0}; // if exiting element is being reused
@@ -769,7 +771,14 @@
             d3.select(this).classed(classed);
           })
           // styles should only be transitioned with css
-          .style('stroke', function(d, i) { return cfg.color(i); })
+          .style('stroke', function(d, i) {
+            if (d.axes[0].type === "Scale") return "grey";
+            return RadarChart.defaultConfig.color || cfg.coloring(i);
+          })
+          .style("stroke", function(d, i ) {
+            if (d.axes[0].type === "Scale") return "grey";
+            return RadarChart.defaultConfig.color || cfg.coloring(i);
+          }) 
           .style('fill', "none")
           .transition().duration(cfg.transitionDuration)
             // svg attrs with js
@@ -783,14 +792,20 @@
             });
 
         if(cfg.circles && cfg.radius) {
-
-          var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
+          //Gets the data that is actually from the user
+          //TODO: Change 20 to 100
+          var nonStandardData = data.filter(function(obj) {
+            var standardMax = RadarChart.defaultConfig.maxValue;
+            return obj.axes[0].value !== standardMax && obj.axes[0].value !== (standardMax/2);
+          });
+      
+          var circleGroups = container.selectAll('g.circle-group').data(nonStandardData, cfg.axisJoin);
 
           circleGroups.enter().append('g').classed({'circle-group': 1, 'd3-enter': 1});
           circleGroups.exit()
             .classed('d3-exit', 1) // trigger css transition
             .transition().duration(cfg.transitionDuration).remove();
-
+      
           circleGroups
             .each(function(d) {
               var classed = {'d3-exit': 0}; // if exiting element is being reused
@@ -807,12 +822,12 @@
           var circle = circleGroups.selectAll('.circle').data(function(datum, i) {
             return datum.axes.map(function(d) { return [d, i]; });
           });
-
+        
           circle.enter().append('circle')
             .classed({circle: 1, 'd3-enter': 1})
             .on('mouseover', function(dd){
               d3.event.stopPropagation();
-              setTooltip(dd[0].value);
+              //setTooltip(dd[0].value);
               //container.classed('focus', 1);
               //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 1);
             })
@@ -823,7 +838,7 @@
               //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 0);
               //No idea why previous line breaks tooltip hovering area after hoverin point.
             });
-
+          
           circle.exit()
             .classed('d3-exit', 1) // trigger css transition
             .transition().duration(cfg.transitionDuration).remove();
@@ -835,7 +850,9 @@
               d3.select(this).classed(classed);
             })
             // styles should only be transitioned with css
-            .style('fill', function(d) { return cfg.color(d[1]); })
+            .style('fill', function(d) { 
+              return RadarChart.defaultConfig.color || cfg.coloring(i);
+            })
             .transition().duration(cfg.transitionDuration)
               // svg attrs with js
               .attr('r', cfg.radius)
@@ -848,14 +865,14 @@
               .each('start', function() {
                 d3.select(this).classed('d3-enter', 0); // trigger css transition
               });
-
           // ensure tooltip is upmost layer
           var tooltipEl = tooltip.node();
           tooltipEl.parentNode.appendChild(tooltipEl);
+    
         }
+      //Circles is done at this point
       });
     }
-
     radar.config = function(value) {
       if(!arguments.length) {
         return cfg;
@@ -873,19 +890,19 @@
 
     return radar;
   },
-  draw: function(id, d, options) {
-    if(options === "default") {
-      var chart = RadarChart.chart().config(this.defaultConfig);
-    } else {
-      var chart = RadarChart.chart().config(options);    
-    };
-    var cfg = chart.config();
+  draw: function(id, d, circleBoolean, color, maxVal) {
+    RadarChart.defaultConfig.maxValue = maxVal;
+    RadarChart.defaultConfig.circles = circleBoolean;
+    RadarChart.defaultConfig.color = color;
 
+    var chart = RadarChart.chart().config(this.defaultConfig);
+    
+    var cfg = chart.config();
     d3.select(id).select('svg').remove();
     d3.select(id)
       .append("svg")
-      .attr("width", cfg.w)
-      .attr("height", cfg.h)
+      .attr("width", cfg.w + 100)
+      .attr("height", cfg.h + 100)
       .datum(d)
       .call(chart);
   },
@@ -894,7 +911,7 @@
 var scores = [
   [{
     axis: "Agreeableness",
-    value: 10, 
+    value: 10.1, 
   },
   {
     axis: "Conscientiousness",
@@ -912,14 +929,14 @@ var scores = [
     axis: "Openness",
     value: 26 
   }],
-  [{axis: "Agreeableness", value: 20},
+  [{axis: "Agreeableness", value: 20, type: "Scale"},
   {axis: "Conscientiousness", value: 20},
   {axis: "Extraversion", value: 20},
   {axis: "Neuroticism", value: 20},
   {axis: "Openness", value: 20}]
 ];
 
-RadarChart.draw("body", scores, "default");
+RadarChart.draw("body", scores, "default", true, "blue", 20);
 
 
   </script>
