@@ -2,55 +2,64 @@
 module.exports = function(sequelize, DataTypes) {
   var results = sequelize.define("results", {
     openness_score: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       validate: {
-        isInt: {msg: "The Openness Score must be an integer"}
+        isDecimal: {msg: "The Openness Score must be an decimal"}
       }
     },
     conscientiousness_score: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       validate: {
-        isInt: {msg: "The Conscientiousness Score must be an integer"}
+        isDecimal: {msg: "The Conscientiousness Score must be an decimal"}
       }
     },
     extraversion_score: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       validate: {
-        isInt: {msg: "The Extraversion Score must be an integer"}
+        isDecimal: {msg: "The Extraversion Score must be an decimal"}
       }
     },
     agreeableness_score: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       validate: {
-        isInt: {msg: "The Agreeableness Score must be an integer"}
+        isDecimal: {msg: "The Agreeableness Score must be an decimal"}
       }
     },
     neuroticism_score: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL,
       validate: {
-        isInt: {msg: "The Neuroticism Score must be an integer"}
+        isDecimal: {msg: "The Neuroticism Score must be an decimal"}
       }
     },
     most_messaged_friend: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: {msg: "You must enter a name for the most messaged friend"},
-        isAlpha: {msg: "The name of the most messaged friend can only include letters"}
+        notEmpty: {msg: "You must enter a name for the most messaged friend"}
       }
+    },
+    most_messaged_friend_bio: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     most_followed_follower: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: {msg: "You must enter a name for the most followed follower"},
-        isAlpha: {msg: "The name of the most followed follower can only include letters"}
+        notEmpty: {msg: "You must enter a name for the most followed follower"}
       }
+    },
+    most_followed_follower_bio: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     most_followed_following: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: {msg: "You must enter a name for the most followed following"},
-        isAlpha: {msg: "The name of the most followed following can only include letters"}
+        notEmpty: {msg: "You must enter a name for the most followed following"}
       }
+    },
+    most_followed_following_bio: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     user_id: {
       type: DataTypes.INTEGER,

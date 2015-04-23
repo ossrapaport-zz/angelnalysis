@@ -13,12 +13,12 @@ App.Views.Topbar = Backbone.View.extend({
 
   showProfile: function() {
     var userID = parseInt( Backbone.history.fragment.split("/")[1] );
-    App.profileView.render();
+    App.router.navigate("profile/" + userID, {trigger: true});
   },
 
   showMainView: function() {
     var userID = parseInt( Backbone.history.fragment.split("/")[1] );
-    App.mainView.render();
+    App.router.navigate("home/" + userID, {trigger: true})
   },
 
   logout: function() {
@@ -26,8 +26,10 @@ App.Views.Topbar = Backbone.View.extend({
       url: "/logout",
       method: "DELETE"
     }).done(function(response) {
-      App.login.render();
-    })
+      //App.loginView.render();
+      //App.topbar.$el.empty();
+      App.router.navigate("login", {trigger: true});
+    });
   },
 
   events: {

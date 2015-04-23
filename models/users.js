@@ -25,6 +25,30 @@ module.exports = function(sequelize, DataTypes) {
       validate: {
         isEmail: {msg: "The email must be a valid email"}
       }
+    },
+    bio: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: {msg: "The bio must be a valid bio"}
+      }
+    },
+    what_ive_built: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: {msg: "The What I've Built section must be a valid What I've Built section"}
+      }
+    },
+    what_i_do: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: {msg: "The What I Do section must be a valid What I Do section"}
+      }
+    },
+    criteria: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: {msg: "The criteria must be a valid criteria"}
+      }
     }
   }, {
 

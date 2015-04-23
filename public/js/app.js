@@ -1,7 +1,13 @@
+var App = {
+  Models: {},
+  Collections: {},
+  Views: {},
+  Routers: {}
+};
+
 $(function() {
-
-  App.loginView = new App.Views.Login();
-  App.loginView.render();
-
+  console.log("App loaded");
+  App.router = new App.Routers.Main();
+  Backbone.history.start();
 });
 

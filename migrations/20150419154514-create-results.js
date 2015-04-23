@@ -9,27 +9,36 @@ module.exports = {
         type: DataTypes.INTEGER
       },
       openness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       conscientiousness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       extraversion_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       agreeableness_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       neuroticism_score: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL
       },
       most_messaged_friend: {
         type: DataTypes.STRING
       },
+      most_messaged_friend_bio: {
+        type: DataTypes.TEXT
+      },
       most_followed_follower: {
         type: DataTypes.STRING
       },
+      most_followed_follower_bio: {
+        type: DataTypes.TEXT
+      },
       most_followed_following: {
+        type: DataTypes.STRING
+      },
+      most_followed_following_bio: {
         type: DataTypes.STRING
       },
       user_id: {
