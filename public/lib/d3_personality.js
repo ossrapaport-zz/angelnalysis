@@ -265,7 +265,8 @@ App.RadarChart = {
           //Gets the data that is actually from the user
           var nonStandardData = data.filter(function(obj) {
             var standardMax = App.RadarChart.defaultConfig.maxValue;
-            return obj.axes[0].value !== standardMax && obj.axes[0].value !== (standardMax/2);
+            return obj.axes[0].value !== standardMax && obj.axes[0].value !== (standardMax/100) 
+            && obj.axes[0].value !== (standardMax/2);
           });
           var circleGroups = container.selectAll('g.circle-group').data(nonStandardData, cfg.axisJoin);
 
@@ -273,7 +274,7 @@ App.RadarChart = {
           circleGroups.exit()
             .classed('d3-exit', 1) // trigger css transition
             .transition().duration(cfg.transitionDuration).remove();
-      
+          
           circleGroups
             .each(function(d) {
               var classed = {'d3-exit': 0}; // if exiting element is being reused
@@ -286,15 +287,14 @@ App.RadarChart = {
               .each('start', function() {
                 d3.select(this).classed('d3-enter', 0); // trigger css transition
               });
-
+              
           var circle = circleGroups.selectAll('.circle').data(function(datum, i) {
             return datum.axes.map(function(d) { return [d, i]; });
           });
 
-          circle.enter().append('circle')
+          var testCircle = circle.enter().append('circle')
             .classed({circle: 1, 'd3-enter': 1})
             .on('mouseover', function(dd){
-              //debugger;
               d3.event.stopPropagation();
               //setTooltip(dd[0].value);
               //container.classed('focus', 1);
@@ -332,10 +332,17 @@ App.RadarChart = {
               .each('start', function() {
                 d3.select(this).classed('d3-enter', 0); // trigger css transition
               });
+
+            
           // ensure tooltip is upmost layer
           var tooltipEl = tooltip.node();
           tooltipEl.parentNode.appendChild(tooltipEl);
     
+          /*container.selectAll("circle")
+                    .append("text")
+                      .style("font-size", "10px")
+                      .attr("text-anchor", "middle")
+                      .text("Hello");*/
         }
       //Circles is done at this point
       });

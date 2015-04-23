@@ -47,7 +47,6 @@ App.Views.UserHome = Backbone.View.extend({
   },
 
   renderRadarChart: function(result) {
-    debugger;
     var scores = [
       [{
         axis: "Agreeableness",
@@ -82,10 +81,17 @@ App.Views.UserHome = Backbone.View.extend({
         {axis: "Extraversion", value: 1},
         {axis: "Neuroticism", value: 1},
         {axis: "Openness", value: 1}
+      ],
+      [
+        {axis: "Agreeableness", value: .01, type: "Scale"},
+        {axis: "Conscientiousness", value: .01},
+        {axis: "Extraversion", value: .01},
+        {axis: "Neuroticism", value: .01},
+        {axis: "Openness", value: .01}
       ]
     ]; 
 
-    App.RadarChart.draw("#right-result-container", scores, true, "blue", 1);
+    App.RadarChart.draw("#right-result-container", scores, true, "royalblue", 1);
   },
 
   events: {
