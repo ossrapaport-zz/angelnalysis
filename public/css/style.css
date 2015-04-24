@@ -3,8 +3,8 @@
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
-  background-color: #fff8dc;
+  font-family: 'Helvetica', sans-serif;
+  background-color: cornsilk;
   color: #222222;
   width: 100%;
 }
@@ -56,8 +56,8 @@ h1, h2 {
 }
 
 #topbar-menu a:hover {
-  color: #ecf0f1;
-  border-bottom: 1px dashed #ecf0f1
+  color: cornsilk;
+  border-bottom: 1px solid cornsilk
 }
 
 #home-button {
@@ -77,10 +77,6 @@ h1, h2 {
   text-align: center;
 }
 
-#angel-logo {
-  
-}
-
 #app-wrapper {
   width: 1000px;
   display: block;
@@ -94,9 +90,6 @@ h1, h2 {
   float: left;
   border-right: 4px solid #bdc3c7;
 }
-/** {
-  align: center;
-}*/
 
 .wrap-right {
   padding-top: 20px;
@@ -105,21 +98,21 @@ h1, h2 {
 }
 
 #search-button {
-    border: none;
-    display: block;
-    background: #84929f;
-    height: 60px;
-    width: 260px;
-    padding: 12px;
-    color: #ffffff;
-    text-align: center;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 24px;
-    -webkit-transition: all 0.15s linear;
-    -moz-transition: all 0.15s linear;
-    transition: all 0.15s linear;
-    margin: 0 auto;
+  border: none;
+  display: block;
+  background: #84929f;
+  height: 60px;
+  width: 260px;
+  padding: 12px;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+  -webkit-transition: all 0.15s linear;
+  -moz-transition: all 0.15s linear;
+  transition: all 0.15s linear;
+  margin: 0 auto;
 }
 
 #user-container {
@@ -129,19 +122,14 @@ h1, h2 {
 }
 
 #search-button:hover {
-  background: #2c3e50;
+  background: royalblue;
 }
 
 #graphs-container {
-  /*width: 1000px;
-  height: 600px;*/
-  border: solid black 1px;
   margin: auto;
 }
 
 #left-result-container {
-/*  background-color: black;
-  background-opacity: .1;*/
   float: left;  
   margin: 0 auto;
   width: 40%;
@@ -149,8 +137,6 @@ h1, h2 {
 
 #right-result-container {
   float: right;
-/*  background-color: red;
-  background-opacity: .1;*/
   margin: 0 auto;
 }
 
@@ -166,10 +152,10 @@ h1, h2 {
 }
 
 #right-profile-wrapper {
-  float: right;
+  float: left;
   width: 50%;
   height: 300px;
-
+  margin-right: 10%;
 }
 
 #profile-header {

@@ -235,6 +235,7 @@ App.RadarChart = {
           .each(function(d, i) {
             var classed = {'d3-exit': 0}; // if exiting element is being reused
             classed['radar-chart-serie' + i] = 1;
+            classed["legend"];
             if(d.className) {
               classed[d.className] = 1;
             }
@@ -270,7 +271,11 @@ App.RadarChart = {
           });
           var circleGroups = container.selectAll('g.circle-group').data(nonStandardData, cfg.axisJoin);
 
-          circleGroups.enter().append('g').classed({'circle-group': 1, 'd3-enter': 1});
+          circleGroups.enter()
+                      .append('g')
+                      .classed({'circle-group': 1, 'd3-enter': 1})
+                      .attr("class", "legend");
+
           circleGroups.exit()
             .classed('d3-exit', 1) // trigger css transition
             .transition().duration(cfg.transitionDuration).remove();
@@ -293,18 +298,7 @@ App.RadarChart = {
           });
 
           var testCircle = circle.enter().append('circle')
-            .classed({circle: 1, 'd3-enter': 1})
-            .on('mouseover', function(dd){
-              d3.event.stopPropagation();
-              //setTooltip(dd[0].value);
-              //container.classed('focus', 1);
-              //container.select('.area.radar-chart-serie'+dd[1]).classed('focused', 1);
-            })
-            .on('mouseout', function(dd){
-              d3.event.stopPropagation();
-              setTooltip(false);
-              container.classed('focus', 0);
-            });
+            .classed({circle: 1, 'd3-enter': 1});
           
           circle.exit()
             .classed('d3-exit', 1) // trigger css transition
@@ -337,14 +331,41 @@ App.RadarChart = {
           // ensure tooltip is upmost layer
           var tooltipEl = tooltip.node();
           tooltipEl.parentNode.appendChild(tooltipEl);
-    
-          /*container.selectAll("circle")
-                    .append("text")
-                      .style("font-size", "10px")
-                      .attr("text-anchor", "middle")
-                      .text("Hello");*/
         }
       //Circles is done at this point
+      container.append("svg:text")
+                .attr("class", "title")
+                .attr("x", 20)
+                .attr("y", 30)
+                .text("Your Personality")
+                  .style("font-size", "20px")
+                  .style("font-weight", "bold")
+                  .style("fill", "royalblue");
+
+      container.append("rect")
+                .attr("class", "legend")
+                .attr("x", 0)
+                .attr("y", 430)
+                .attr("stroke", "black")
+                .attr("stroke-width", 3)
+                .attr("width", 545)
+                .attr("height", 30)
+                .attr("fill", "white")
+
+        container.append("text")
+                  .data(nonStandardData)
+                  .text(function(d) {
+                    var textArr = d.axes.map(function(obj) {
+                      return obj.axis + ": " + Math.round(obj.value*100) + "%";
+                    })
+                    return textArr.join(" | ");
+                  })
+                  .attr("x", 10)
+                  .attr("y", 450)
+                  .style("fill", "royalblue")
+                  .style("font-size", "11px");
+
+
       });
     }
     radar.config = function(value) {

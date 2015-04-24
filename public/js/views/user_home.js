@@ -18,11 +18,20 @@ App.Views.UserHome = Backbone.View.extend({
     this.model = user;
   },
 
+  showButton: function() {
+    this.$el.find("#search-button").show();
+  },
+
   searchForAnalysis: function() {
     var userID = Backbone.history.fragment.split("/")[1];
     $.post("/results/" + userID)
+    .done(this.hideButton.bind(this))
     .done(this.renderResult.bind(this))
     .done(this.renderRadarChart.bind(this));
+  },
+
+  hideButton: function() {
+    this.$el.find("#search-button").hide();
   },
 
   renderResult: function(result) {

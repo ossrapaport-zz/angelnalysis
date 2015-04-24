@@ -17,7 +17,7 @@ App.Views.UserProfile = Backbone.View.extend({
 
   setUser: function(user) {
     this.model = user;
-  },
+  }/*,
 
   showAResult: function(event) {
     var resultID = $(event.currentTarget).attr("result-id");
@@ -32,6 +32,6 @@ App.Views.UserProfile = Backbone.View.extend({
 
   events: {
     "click .result-tag": "showAResult"
-  }
+  }*/
 
 });
