@@ -120,6 +120,6 @@ app.delete("/logout", function(req, res) {
 app.use("/users", userRouter);
 app.use("/results", resultRouter);
 
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
   console.log("Server on 3000");
 });
