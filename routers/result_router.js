@@ -11,6 +11,25 @@ var User = models.users,
 
 var resultRouter = express.Router();
 
+var options;
+
+// =====================
+var getMostMessagedFriend = function(mediumCallback) {
+  options.url = "https://api.angel.co/1/messages"
+  request(options, function(error, response, body) {
+    var mostMessagedObject = findMostMessaged(body.messages);
+    mediumCallback(null, mostMessagedObject);
+  });
+};
+
+
+/*var getAllTheThings = require('./lib/angellistapicalls.js');
+*/
+// =====================
+
+
+
+
 //TODO: Change this to a post request, is just a get for easier view
 //TODO: Add user auth middleware, not currently in here for easier view
 resultRouter.post("/:user_id", function(req, res) {
@@ -30,7 +49,7 @@ resultRouter.post("/:user_id", function(req, res) {
     userTextArray.push(user.what_i_do);
     userTextArray.push(user.criteria);
     //Then create a general options variable to go with each request
-    var options = {
+    options = {
       url: "loremipsum",
       headers: {
         Authorization: req.session.token
@@ -38,6 +57,11 @@ resultRouter.post("/:user_id", function(req, res) {
       json: true
     };
     //TODO: Make this much DRYer and more intelligible. How can I do that?
+/*    getAllTheThings(function() {
+      user.create.then(sendstuff)
+    })*/
+
+
     async.parallel([
       function(bigCallback) {
         //Next, look at the user's status updates
@@ -68,7 +92,8 @@ resultRouter.post("/:user_id", function(req, res) {
               mediumCallback(null, threadsIDArray);
             });
           //Pass the threads ID array along to the next function
-          }, function(threadsIDArray, mediumCallback) {
+          }, 
+          function(threadsIDArray, mediumCallback) {
             //TODO: Find out why the below is console logged twice???
             console.log("1010");
             //Find those threads and request each one of them
@@ -105,11 +130,7 @@ resultRouter.post("/:user_id", function(req, res) {
       async.parallel([
         //Most messaged
         function(mediumCallback) {
-          options.url = "https://api.angel.co/1/messages"
-          request(options, function(error, response, body) {
-            var mostMessagedObject = findMostMessaged(body.messages);
-            mediumCallback(null, mostMessagedObject);
-          })
+          getMostMessagedFriend(mediumCallback);
         },
         function(mediumCallback) {
           //TODO: Find out how to do this by getting the user ID from the router

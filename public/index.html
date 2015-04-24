@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AngelList Test</title>
+  <!-- <title>AngelList Test</title> -->
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -19,14 +19,14 @@
   <script src="js/views/topbar.js"></script>
   <script src="js/views/user_home.js"></script>
   <script src="js/views/user_profile.js"></script>
+  <script src="lib/d3_personality.js"></script>
+  <script src="lib/d3_connections.js"></script>
+  <script src="lib/normalize.js"></script>
 </head>
 <body>
   <!-- DOM Elements -->
   <div id="header"></div>
-  <div id="inner-page">
-    <div id="app-wrapper">
-    </div>
-  </div>
+  <div id="app-wrapper"></div>
 
   <!--Templates-->
   <template id="topbar-template">
@@ -47,10 +47,10 @@
         <p id="signup-explanation">We look at all your data on AngelList, from messages to status updates, and analyze how you present yourself on AngelList.</p>
       </section>
       <div class="wrap-left">
-        Login with
+        <h2>Login with</h2>
         <div class="clear-top"></div>
       <a id="login-button" href="/auth/angellist">
-        <img src="http://wedid.it/assets/angellist-logo.png" width="300">
+        <img src="https://files.slack.com/files-pri/T0351JZQ0-F04HK5GE1/angellist.png" width="300">
       <br />
         <span class="button-text" id="angel-logo">         
         </span>
@@ -63,14 +63,22 @@
   </template>
 
   <template id="user-profile-template">
+    <div id="profile-header">
     <div id="name"><h2 align="center">Welcome, {{name}}.</h2></div>
     <h3 align="center">This is your account information.</h3>
     <h4>Here is all the information we store.</h4>
+    </div>
+    <div id="left-profile-wrapper">
     <img src="{{image}}" alt="Your AngelList Photo">
+    </div>
+    <div id="right-profile-wrapper">
     <h5>Name: {{name}}</h5>
     <h5>Email: {{email}}</h5>
-    {{#if results}}
-      <h3>Your Past Results</h3>
+    </div>
+
+    <!-- {{#if results}}
+        
+      <h3 align="center">Your Past Results</h3>
       <p>Click on one to view it fully.</p>
       <br>
       {{#each results}}
@@ -90,16 +98,18 @@
   </template>
 
   <template id="main-user-template">
-    <div id="name"><h2 align="center">Welcome, {{name}}.</h2></div>
-    <a id="search-button">
-      <span class="button-text">
-        Analyze My Profile
-      </span>
-    </a>
-    <div id="left-result-container">
-      <!-- Put a little D3 swirling in here -->
+    <div id="user-container">
+      <h2 id="name">Welcome, {{name}}.</h2>
+      <button id="search-button" class="button-text">
+          Analyze My Profile 
+      </button>
+    </div> 
+    <div id="graphs-container">
+      <div id="left-result-container">
+        <!-- Put a little D3 swirling in here -->
+      </div>
+      <div id="right-result-container"></div>
     </div>
-    <div id="right-result-container"></div>
   </template>
 
   <!-- Set up this template to be D3-friendly -->

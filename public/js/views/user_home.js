@@ -5,8 +5,6 @@ App.Views.UserHome = Backbone.View.extend({
   initialize: function() {
     console.log("New User Home View");
     this.template = Handlebars.compile( $("#main-user-template").html() );
-    //TODO: Evaluate the below while using set
-    //this.listenTo(this.model, "change", this.render);
   },
 
   render: function() {
@@ -20,15 +18,24 @@ App.Views.UserHome = Backbone.View.extend({
     this.model = user;
   },
 
+  showButton: function() {
+    this.$el.find("#search-button").show();
+  },
+
   searchForAnalysis: function() {
     var userID = Backbone.history.fragment.split("/")[1];
     $.post("/results/" + userID)
+    .done(this.hideButton.bind(this))
     .done(this.renderResult.bind(this))
     .done(this.renderRadarChart.bind(this));
   },
 
+  hideButton: function() {
+    this.$el.find("#search-button").hide();
+  },
+
   renderResult: function(result) {
-    var valueData = {
+    var parsedData = {
       name: "Most Valuable Connections",
       children: [
         {
@@ -45,185 +52,55 @@ App.Views.UserHome = Backbone.View.extend({
         }
       ]
     };
-
-    var width = 600;
-    var height = 600;
-
-
-    var canvas = d3.select("#left-result-container").append("svg")
-                  .attr("width", width)
-                  .attr("height", height)
-                  .append("g")
-                    .attr("transform", "translate(50,50)");
-
-  
-
-    var update = function(desiredDepth) {
-      //d3.select("svg").text("");
-      var tree = d3.layout.tree()
-        .size([400, 400]);
-
-      var diagonal = d3.svg.diagonal()
-        .projection(function(d) {
-          return [d.x, d.y];
-        });
-
-      var nodes = tree.nodes(valueData);
-      //context.clearRect(0, 0, canvas.width, canvas.height);
-      var currentNodes = nodes.filter(function(node) {
-        return node.depth <= desiredDepth;
-      });
-
-      var node = canvas.selectAll(".node")
-              .data(currentNodes)
-              .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) {
-                  return "translate(" + d.x + "," + d.y + ")";
-                });
-
-      debugger;
-
-      node.append("circle")
-          .attr("r", function(d) {
-            return d.depth === 0 ? 10 : 5;
-          })
-          .attr("fill", function(d) {
-            return d.children ? "lightsteelblue" : "#fff"
-          })
-          .attr("stroke", "steelblue")
-          .attr("stroke-width", function(d) {
-            return d.depth === 0 ? 2 : 1;
-          })
-          .on("click", click);
-
-      node.append("text")
-          .text(function(d) {
-            return d.name;
-          });
-
-      if (currentNodes.length > 1) {      
-        var links = tree.links(currentNodes);
-        canvas.selectAll(".links")
-              .data(links)
-              .enter()
-                .append("path")
-                .attr("class", "link")
-                .attr("fill", "none")
-                .attr("stroke", "#ADADAD")
-                .attr("stroke-width", 5)
-                .attr("d", diagonal);
-      };
-
-    };
-
-    var click = function(d) {
-      var centralNode = d3.select(this);
-      centralNode.classed("expanded", !centralNode.classed("expanded"));
-      debugger;
-      if (centralNode.classed("expanded")) {
-        update(1);
-      } else {
-        debugger;
-        update(0);
-      }
-    }
-
-    update(0);
+    App.buildTree("#left-result-container", parsedData);
   },
 
   renderRadarChart: function(result) {
     var scores = [
-      {
-        name: "Agreeableness",
-        score: result.agreeableness_score, 
+      [{
+        axis: "Agreeableness",
+        value: App.normalize(result.agreeableness_score, "Agreeableness")
       },
       {
-        name: "Conscientiousness",
-        score: result.conscientiousness_score 
+        axis: "Conscientiousness",
+        value: App.normalize(result.conscientiousness_score, "Conscientiousness") 
       },
       {
-        name: "Extraversion",
-        score: result.extraversion_score
+        axis: "Extraversion",
+        value: App.normalize(result.extraversion_score, "Extraversion")
       },
       {
-        name: "Neuroticism",
-        score: result.neuroticism_score
+        axis: "Neuroticism",
+        value: App.normalize(result.neuroticism_score, "Neuroticism")
       },
       {
-        name: "Openness",
-        score: result.openness_score 
-      }
-    ];
+        axis: "Openness",
+        value: App.normalize(result.openness_score, "Openness") 
+      }],
+      [
+        {axis: "Agreeableness", value: .5, type: "Scale"},
+        {axis: "Conscientiousness", value: .5},
+        {axis: "Extraversion", value: .5},
+        {axis: "Neuroticism", value: .5},
+        {axis: "Openness", value: .5}
+      ],
+      [
+        {axis: "Agreeableness", value: 1, type: "Scale"},
+        {axis: "Conscientiousness", value: 1},
+        {axis: "Extraversion", value: 1},
+        {axis: "Neuroticism", value: 1},
+        {axis: "Openness", value: 1}
+      ],
+      [
+        {axis: "Agreeableness", value: .01, type: "Scale"},
+        {axis: "Conscientiousness", value: .01},
+        {axis: "Extraversion", value: .01},
+        {axis: "Neuroticism", value: .01},
+        {axis: "Openness", value: .01}
+      ]
+    ]; 
 
-/*    var canvas = d3.select("#right-result-container").append("svg")
-                  .attr("width", 500)
-                  .attr("height", 500)
-                  .append("g")
-                    .attr("transform", "translate(50,50)");
-
-    var width = 500;
-    var height = 500;
-
-    canvas.append("path")
-          .style("stroke", "black")
-          .style("fill", "none")
-          .attr("d", "M 250,150, L200,200, L214.645, 272.211, L285.356, 272.211, L300,200, Z");
-*/
-    var canvas = d3.select("#right-result-container")
-        .append("svg")
-        .attr("width", 700)
-        .attr("height", 700);
-
-    var axisArray = [];
-
-    var opennessScale = d3.scale.linear()
-        .domain([0, 200])
-        .range([0, 200]);
-
-    var axis1 = d3.svg.axis()
-        .scale(opennessScale);
-
-    var axis1Group = canvas.append("g")
-        .attr("transform", "translate(280,280) rotate(342)")
-        .call(axis1)
-        .style("fill", "none");
-
-    var axis2 = d3.svg.axis()
-        .scale(opennessScale);
-
-    var axis2Group = canvas.append("g")
-        .attr("transform", "translate(280,280) rotate(54)")
-        .call(axis2);      
-
-    var axis3 = d3.svg.axis()
-        .scale(opennessScale);
-
-    var axis3Group = canvas.append("g")
-        .attr("transform", "translate(280,280) rotate(126)")
-        .call(axis3);
-
-    var axis4 = d3.svg.axis()
-        .scale(opennessScale);
-
-    var axis4Group = canvas.append("g")
-        .attr("transform", "translate(280,280) rotate(198)")
-        .call(axis4);    
-
-    var axis5 = d3.svg.axis()
-        .scale(opennessScale)
-
-    var axis5Group = canvas.append("g")
-        .attr("transform", "translate(280,280) rotate(270)")
-        .call(axis5);
-
-    canvas.append("g")
-          .attr("class", "grid")
-          .attr("transform", "translate(0," + 500 + ")");
-
-
-
+    App.RadarChart.draw("#right-result-container", scores, true, "royalblue", 1);
   },
 
   events: {
