@@ -13,6 +13,23 @@ var resultRouter = express.Router();
 
 var options;
 
+var authenticate = function(req, res, next) {
+  req.session.token && req.session.angelID && req.session.currentUser ? next() : res.status(400).send({
+    err: 400,
+    msg: "You have to login first"
+  });
+};
+
+var authorize = function(req, res, next) {
+  var sessionID = parseInt( req.session.currentUser );
+  var reqID = parseInt( req.params.user_id );
+
+  sessionID === reqID ? next() : res.status(400).send({
+    err: 400,
+    msg: "You are not allowed to see that"
+  });
+};
+
 // =====================
 var getMostMessagedFriend = function(mediumCallback) {
   options.url = "https://api.angel.co/1/messages"
@@ -28,11 +45,8 @@ var getMostMessagedFriend = function(mediumCallback) {
 // =====================
 
 
-
-
-//TODO: Change this to a post request, is just a get for easier view
 //TODO: Add user auth middleware, not currently in here for easier view
-resultRouter.post("/:user_id", function(req, res) {
+resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
 
   //First get all the text this user has ever written
   //and store it in an array for ease
@@ -104,7 +118,7 @@ resultRouter.post("/:user_id", function(req, res) {
                 var messages = body.messages;
                 messages.forEach(function(message) {
                   //If the user sent the message, get that text
-                  if (parseInt( message.sender_id ) === parseInt( req.session.angelID )) {
+                  if (parseInt( message.sender_id ) === parseInt( angelID )) {
                     userTextArray.push(message.body);
                   }
                 });
@@ -136,7 +150,7 @@ resultRouter.post("/:user_id", function(req, res) {
           //TODO: Find out how to do this by getting the user ID from the router
           //Most followed follower
           options.url = "https://api.angel.co/1/users/" + 
-          req.session.angelID + "/followers";
+          angelID + "/followers";
           request(options, function(error, response, body) {
             var mostFollowedFollowerObject = findMostFollowed(body.users);
             mediumCallback(null, mostFollowedFollowerObject);
@@ -146,7 +160,7 @@ resultRouter.post("/:user_id", function(req, res) {
           //TODO: Find out how to do this by getting the user ID from the router 
           //Most followed following
           options.url = "https://api.angel.co/1/users/" +
-          req.session.angelID + "/following?type=user";
+          angelID + "/following?type=user";
           request(options, function(error, response, body) {
             var mostFollowedFollowingObject = findMostFollowed(body.users);
             mediumCallback(null, mostFollowedFollowingObject);
@@ -176,22 +190,5 @@ resultRouter.post("/:user_id", function(req, res) {
     });
   });
 });
-
-var authenticate = function(req, res, next) {
-  req.session.token && req.session.angelID && req.session.currentUser ? next() : res.status(400).send({
-    err: 400,
-    msg: "You have to login first"
-  });
-};
-
-var authorize = function(req, res, next) {
-  var sessionID = parseInt( req.session.currentUser );
-  var reqID = parseInt( req.params.user_id );
-
-  sessionID === reqID ? next() : res.status(400).send({
-    err: 400,
-    msg: "You are not allowed to see that"
-  });
-};
 
 module.exports = resultRouter;

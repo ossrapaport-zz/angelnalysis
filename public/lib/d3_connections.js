@@ -39,11 +39,9 @@ App.buildTree = function(element, valueData) {
           return d.depth === 0 ? 10 : 5;
         })
         .attr("fill", "royalblue")
-        //.attr("stroke", "steelblue")
         .attr("stroke-width", function(d) {
           return d.depth === 0 ? 2 : 1;
         })
-        //.on("click", click);
 
     node.append("text")
         .text(function(d) {
@@ -76,16 +74,6 @@ App.buildTree = function(element, valueData) {
               .style("fill", "royalblue");
 
   };
-
-/*  var click = function(d) {
-    var centralNode = d3.select(this);
-    centralNode.classed("expanded", !centralNode.classed("expanded"));
-    if (centralNode.classed("expanded")) {
-      update(1);
-    } else {
-      update(0);
-    }
-  }*/
 
   update(1);
 };
