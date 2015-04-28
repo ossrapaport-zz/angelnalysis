@@ -12,7 +12,6 @@ var application_root  = __dirname,
     models            = require("./models"),
     path              = require("path"),
     environment       = require("dotenv"),
-    //Note that you added options._scope in below.
     AngelListStrategy = require('passport-angellist-e_and_m').Strategy;
 
 var userRouter = require("./routers/user_router.js"),

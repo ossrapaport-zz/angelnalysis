@@ -2,9 +2,10 @@ var express = require("express"),
     models  = require("../models"),
     async   = require("async"),
     request = require("request"),
-    findMostMessaged = require("../lib/find_most_messaged.js"),
-    findMostFollowed = require("../lib/find_most_followed.js"),
-    getPersonalityScores = require("../lib/personality_scores_finder.js");
+    getPersonalityScores = require("../lib/personality_scores_finder.js"),
+    getMostMessagedFriend = require("../lib/nested_async_functions/get_most_messaged_friend.js"),
+    getMostFollowedFollower = require("../lib/nested_async_functions/get_most_followed_follower.js"),
+    getMostFollowedFollowing = require("../lib/nested_async_functions/get_most_followed_following.js");
 
 var User = models.users,
     Result = models.results;
@@ -31,21 +32,11 @@ var authorize = function(req, res, next) {
 };
 
 // =====================
-var getMostMessagedFriend = function(mediumCallback) {
-  options.url = "https://api.angel.co/1/messages"
-  request(options, function(error, response, body) {
-    var mostMessagedObject = findMostMessaged(body.messages);
-    mediumCallback(null, mostMessagedObject);
-  });
-};
-
 
 /*var getAllTheThings = require('./lib/angellistapicalls.js');
 */
 // =====================
 
-
-//TODO: Add user auth middleware, not currently in here for easier view
 resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
 
   //First get all the text this user has ever written
@@ -56,14 +47,14 @@ resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
   User
   .findOne(req.params.user_id)
   .then(function(user) {
-    var userID = user.id;
-    var angelID = user.angellist_id;
     userTextArray.push(user.bio);
     userTextArray.push(user.what_ive_built);
     userTextArray.push(user.what_i_do);
     userTextArray.push(user.criteria);
-    //Then create a general options variable to go with each request
-    options = {
+    //Then create an options variable and id variables for request calls
+    var userID = user.id;
+    var angelID = user.angellist_id;
+    var options = {
       url: "loremipsum",
       headers: {
         Authorization: req.session.token
@@ -82,10 +73,12 @@ resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
         options.url = "https://api.angel.co/1/status_updates";
         request(options, function(error, response, body) {
           var userStatuses = body.status_updates;
+          var statusArray = [];
           userStatuses.forEach(function(status) {
             userTextArray.push(status.message);
+            statusArray.push(status.message);
           });
-          bigCallback(null);
+          bigCallback(null, statusArray);
           //TODO: If more than one page of results, account for it
         });
       },
@@ -144,27 +137,17 @@ resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
       async.parallel([
         //Most messaged
         function(mediumCallback) {
-          getMostMessagedFriend(mediumCallback);
+          getMostMessagedFriend(mediumCallback, options);
         },
         function(mediumCallback) {
           //TODO: Find out how to do this by getting the user ID from the router
           //Most followed follower
-          options.url = "https://api.angel.co/1/users/" + 
-          angelID + "/followers";
-          request(options, function(error, response, body) {
-            var mostFollowedFollowerObject = findMostFollowed(body.users);
-            mediumCallback(null, mostFollowedFollowerObject);
-          });
+          getMostFollowedFollower(mediumCallback, options, angelID);
         },
         function(mediumCallback) {
           //TODO: Find out how to do this by getting the user ID from the router 
           //Most followed following
-          options.url = "https://api.angel.co/1/users/" +
-          angelID + "/following?type=user";
-          request(options, function(error, response, body) {
-            var mostFollowedFollowingObject = findMostFollowed(body.users);
-            mediumCallback(null, mostFollowedFollowingObject);
-          });
+          getMostFollowedFollowing(mediumCallback, options, angelID);
         }
       ], function(err, userResults) {
         var userScores = getPersonalityScores(userTextArray);
