@@ -1,197 +1,92 @@
-var express = require("express"),
-    models  = require("../models"),
-    async   = require("async"),
-    request = require("request"),
-    findMostMessaged = require("../lib/find_most_messaged.js"),
-    findMostFollowed = require("../lib/find_most_followed.js"),
-    getPersonalityScores = require("../lib/personality_scores_finder.js");
+var express                   = require("express"),
+    models                    = require("../models"),
+    async                     = require("async"),
+    request                   = require("request"),
+    authenticate              = require("../lib/user_auth/authenticate.js"),
+    authorize                 = require("../lib/user_auth/authorize.js"), 
+    getPersonalityScores      = require("../lib/personality_scores_finder.js"),
+    getUserStatuses           = require("../lib/nested_async_functions/get_user_statuses.js"),
+    getThreadIDs              = require("../lib/nested_async_functions/get_thread_ids.js"),
+    getMessages               = require("../lib/nested_async_functions/get_messages.js"),
+    getMostMessagedFriend     = require("../lib/nested_async_functions/get_most_messaged_friend.js"),
+    getMostFollowedFollower   = require("../lib/nested_async_functions/get_most_followed_follower.js"),
+    getMostFollowedFollowing  = require("../lib/nested_async_functions/get_most_followed_following.js");
 
 var User = models.users,
     Result = models.results;
 
 var resultRouter = express.Router();
 
-var options;
-
-// =====================
-var getMostMessagedFriend = function(mediumCallback) {
-  options.url = "https://api.angel.co/1/messages"
-  request(options, function(error, response, body) {
-    var mostMessagedObject = findMostMessaged(body.messages);
-    mediumCallback(null, mostMessagedObject);
-  });
-};
-
-
-/*var getAllTheThings = require('./lib/angellistapicalls.js');
-*/
-// =====================
-
-
-
-
-//TODO: Change this to a post request, is just a get for easier view
-//TODO: Add user auth middleware, not currently in here for easier view
-resultRouter.post("/:user_id", function(req, res) {
-
-  //First get all the text this user has ever written
-  //and store it in an array for ease
-  var userTextArray = [];
-
-  //Start with profile text
+resultRouter.post("/:user_id", authenticate, authorize, function(req, res) {
+  
   User
   .findOne(req.params.user_id)
   .then(function(user) {
-    var userID = user.id;
-    var angelID = user.angellist_id;
+    var userTextArray = [];
     userTextArray.push(user.bio);
     userTextArray.push(user.what_ive_built);
     userTextArray.push(user.what_i_do);
     userTextArray.push(user.criteria);
-    //Then create a general options variable to go with each request
-    options = {
+
+    var userID = user.id;
+    var angelID = user.angellist_id;
+    var options = {
       url: "loremipsum",
       headers: {
         Authorization: req.session.token
       },
       json: true
     };
-    //TODO: Make this much DRYer and more intelligible. How can I do that?
-/*    getAllTheThings(function() {
-      user.create.then(sendstuff)
-    })*/
 
-
-    async.parallel([
+    async.waterfall([
       function(bigCallback) {
         //Next, look at the user's status updates
-        options.url = "https://api.angel.co/1/status_updates";
-        request(options, function(error, response, body) {
-          var userStatuses = body.status_updates;
-          userStatuses.forEach(function(status) {
-            userTextArray.push(status.message);
-          });
+        getUserStatuses(bigCallback, options);
+      }, function(statusArray, bigCallback) {
+        //Make an IDs array for all the user's message threads
+        getThreadIDs(bigCallback, options, statusArray);
+      }, function(statusArray, threadsIDArray, bigCallback) {
+        //Get the messages from each thread
+        async.map(threadsIDArray, function(threadID, smallCallback) {
+          getMessages(smallCallback, options, threadID, angelID);
+        }, function(err, filteredMessageBodies) {
+          //Flatten the results, then build the big text array 
+          var flattenedMessages = [].concat.apply([], filteredMessageBodies);
+          userTextArray = userTextArray.concat( statusArray.concat(flattenedMessages) );
           bigCallback(null);
-          //TODO: If more than one page of results, account for it
-        });
-      },
-      function(bigCallback) {
-        //Then, get the user's messages
-        async.waterfall([
-          function(mediumCallback) {
-            //Make an array of the IDs of all the threads in which
-            //the user has written
-            var threadsIDArray = [];
-            options.url = "https://api.angel.co/1/messages";
-            //TODO: Account for more than one page of messages
-            request(options, function(error, response, body) {
-              var messages = body.messages;
-              messages.forEach(function(message) {
-                threadsIDArray.push(message.thread_id);
-              });
-              mediumCallback(null, threadsIDArray);
-            });
-          //Pass the threads ID array along to the next function
-          }, 
-          function(threadsIDArray, mediumCallback) {
-            //TODO: Find out why the below is console logged twice???
-            console.log("1010");
-            //Find those threads and request each one of them
-            async.each(threadsIDArray, function(threadID, smallCallback) {
-              options.url = "https://api.angel.co/1/messages/" + threadID,
-              request(options, function(error, response, body) {
-                //Get the messages array from each thread
-                var messages = body.messages;
-                messages.forEach(function(message) {
-                  //If the user sent the message, get that text
-                  if (parseInt( message.sender_id ) === parseInt( req.session.angelID )) {
-                    userTextArray.push(message.body);
-                  }
-                });
-                //Once the messages are in the text array, callback time
-                smallCallback();      
-              });
-            }, function(err) {
-              if (err) res.status(500).send({err: 500, msg: "Houston, we've got a problem"});
-              //If no error, the text array has what it needs so callback
-              mediumCallback();
-            });
-          }
-        ], function(err, result) {
-          //THE FINAL CALLBACK
-          bigCallback();
-        });
+        });        
+      }, function(bigCallback) {
+        //Find the most messaged friend
+        getMostMessagedFriend(bigCallback, options);
+      }, function(userConnections, bigCallback) {
+        //Most followed follower
+        getMostFollowedFollower(bigCallback, userConnections, options, angelID);
+      }, function(userConnections, bigCallback) {
+        //Most followed person the user is following
+        getMostFollowedFollowing(bigCallback, userConnections, options, angelID);        
       }
-    ],
-    function(err, results) {
-      //Now we find the most messaged and most followed connections
-      //usng async parallel to get all the data
-      //TODO: For all of these, account for more than one page
-      async.parallel([
-        //Most messaged
-        function(mediumCallback) {
-          getMostMessagedFriend(mediumCallback);
-        },
-        function(mediumCallback) {
-          //TODO: Find out how to do this by getting the user ID from the router
-          //Most followed follower
-          options.url = "https://api.angel.co/1/users/" + 
-          req.session.angelID + "/followers";
-          request(options, function(error, response, body) {
-            var mostFollowedFollowerObject = findMostFollowed(body.users);
-            mediumCallback(null, mostFollowedFollowerObject);
-          });
-        },
-        function(mediumCallback) {
-          //TODO: Find out how to do this by getting the user ID from the router 
-          //Most followed following
-          options.url = "https://api.angel.co/1/users/" +
-          req.session.angelID + "/following?type=user";
-          request(options, function(error, response, body) {
-            var mostFollowedFollowingObject = findMostFollowed(body.users);
-            mediumCallback(null, mostFollowedFollowingObject);
-          });
-        }
-      ], function(err, userResults) {
-        var userScores = getPersonalityScores(userTextArray);
-        Result
-        .create({
-          agreeableness_score: userScores.openness,
-          conscientiousness_score: userScores.conscientiousness,
-          extraversion_score: userScores.extraversion,
-          neuroticism_score: userScores.neuroticism,
-          openness_score: userScores.openness,
-          most_messaged_friend: userResults[0].name,
-          most_messaged_friend_bio: userResults[0].bio,
-          most_followed_follower: userResults[1].name,
-          most_followed_follower_bio: userResults[1].bio,
-          most_followed_following: userResults[2].name,
-          most_followed_following_bio: userResults[2].bio,
-          user_id: userID
-        })
-        .then(function(result) {
-          res.send(result);
-        });
+    ], function(err, userConnections) {
+      var userScores = getPersonalityScores(userTextArray);
+      Result
+      .create({
+        agreeableness_score: userScores.openness,
+        conscientiousness_score: userScores.conscientiousness,
+        extraversion_score: userScores.extraversion,
+        neuroticism_score: userScores.neuroticism,
+        openness_score: userScores.openness,
+        most_messaged_friend: userConnections[0].name,
+        most_messaged_friend_bio: userConnections[0].bio,
+        most_followed_follower: userConnections[1].name,
+        most_followed_follower_bio: userConnections[1].bio,
+        most_followed_following: userConnections[2].name,
+        most_followed_following_bio: userConnections[2].bio,
+        user_id: userID
+      })
+      .then(function(result) {
+        res.send(result);
       });
     });
   });
 });
-
-var authenticate = function(req, res, next) {
-  req.session.token && req.session.angelID && req.session.currentUser ? next() : res.status(400).send({
-    err: 400,
-    msg: "You have to login first"
-  });
-};
-
-var authorize = function(req, res, next) {
-  var sessionID = parseInt( req.session.currentUser );
-  var reqID = parseInt( req.params.user_id );
-
-  sessionID === reqID ? next() : res.status(400).send({
-    err: 400,
-    msg: "You are not allowed to see that"
-  });
-};
 
 module.exports = resultRouter;

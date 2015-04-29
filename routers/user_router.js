@@ -1,27 +1,11 @@
 var express = require("express"),
     userRouter = express.Router(),
-    models = require("../models");
+    models = require("../models"),
+    authenticate = require("../lib/user_auth/authenticate.js"),
+    authorize = require("../lib/user_auth/authorize.js");
 
 var User = models.users,
     Result = models.results;
-
-
-var authenticate = function(req, res, next) {
-  req.session.token && req.session.angelID && req.session.currentUser ? next() : res.status(400).send({
-    err: 400,
-    msg: "You have to login first"
-  });
-};
-
-var authorize = function(req, res, next) {
-  var sessionID = parseInt( req.session.currentUser );
-  var reqID = parseInt( req.params.user_id );
-
-  sessionID === reqID ? next() : res.status(400).send({
-    err: 400,
-    msg: "You are not allowed to see that"
-  });
-};
 
 userRouter.get("/:user_id", authenticate, authorize, function(req, res) {
   console.log("HERE");

@@ -1,4 +1,3 @@
-//For AngelList pagination, just put in a query param of page="pagenumber"
 var application_root  = __dirname,
     express           = require('express'),
     passport          = require('passport'),
@@ -12,7 +11,6 @@ var application_root  = __dirname,
     models            = require("./models"),
     path              = require("path"),
     environment       = require("dotenv"),
-    //Note that you added options._scope in below.
     AngelListStrategy = require('passport-angellist-e_and_m').Strategy;
 
 var userRouter = require("./routers/user_router.js"),
@@ -27,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(session({
-  secret: "graeme",
+  secret: "kitten",
   saveUninitialized: false,
   resave: false
 }));
@@ -40,7 +38,6 @@ var currentAccessToken;
 passport.use(new AngelListStrategy({
   clientID:     process.env.ANGEL_LIST_CLIENT_ID,
   clientSecret: process.env.ANGEL_LIST_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/logged_in"
 }, function(accessToken, refreshToken, profile, done) {
   currentAccessToken = accessToken;
   process.nextTick(function() {
@@ -64,14 +61,15 @@ app.get("/login", function(req, res) {
   request.get("/auth/angellist", 
     passport.authenticate("angellist"),
     function(error, response, body) {
+      //This function is never invoked
     });
 });
 
-
 app.get('/auth/angellist',
   passport.authenticate('angellist'),
-  function(req, res) {}
-);
+  function(req, res) {
+    //This function is never invoked
+});
 
 app.get('/logged_in', 
   passport.authenticate('angellist', { failureRedirect: '/login' }),
@@ -107,7 +105,6 @@ app.get('/logged_in',
       res.redirect("/#home/" + req.session.currentUser);
     });
 });
-
 
 app.delete("/logout", function(req, res) {
   delete req.session.currentUser;
