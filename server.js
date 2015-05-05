@@ -19,7 +19,9 @@ var userRouter = require("./routers/user_router.js"),
 var app = express();
 
 environment.load();
-app.use(logger("dev"));
+if (process.env.NODE_ENV !== "test") {
+  app.use(logger("dev"));
+}
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
